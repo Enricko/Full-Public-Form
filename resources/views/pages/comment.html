@@ -1,0 +1,1022 @@
+<div class="container">
+  
+  <div class="social-post detail-view">
+    <div class="post-header">
+      <img
+        src="../assets/images/profile.png"
+        alt="Profile"
+        class="post-avatar" />
+      <div class="post-info">
+        <div class="post-author">
+          <span id="post-author">@Crocodilo</span> <span class="post-date" id="post-date">· 3h ago</span>
+        </div>
+        <div class="post-meta" id="post-meta">CTO @ PublicForum</div>
+      </div>
+      
+      <div class="follow-btn-container ms-auto">
+        <button class="follow-btn">Ikuti</button>
+      </div>
+    </div>
+    <div class="post-content" id="post-content">
+      Loading post content...
+    </div>
+
+
+<style>
+
+.comments-section {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e1e8ed;
+}
+
+.comments-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f7f9fa;
+}
+
+.comments-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #14171a;
+  margin: 0;
+}
+
+.comments-count {
+  background-color: #dc3545;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.comment-thread {
+  margin-bottom: 0;
+  position: relative;
+  border-bottom: 1px solid #2f3336;
+}
+
+.comment-thread:last-child {
+  border-bottom: none;
+}
+
+.comment-item {
+  display: flex;
+  gap: 12px;
+  padding: 16px 0;
+  background-color: #ffffff;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.comment-item:hover {
+  background-color: #f7f9fa;
+}
+
+.comment-avatar {
+  flex-shrink: 0;
+  position: relative;
+}
+
+.comment-avatar img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #e1e8ed;
+  object-fit: cover;
+}
+
+.comment-avatar.verified::after {
+  content: '✓';
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  background-color: #dc3545;
+  color: white;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
+.comment-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.comment-author {
+  font-weight: 700;
+  color: #14171a;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+.comment-author:hover {
+  color: #dc3545;
+  text-decoration: underline;
+}
+
+.comment-username {
+  color: #657786;
+  font-size: 14px;
+}
+
+.comment-timestamp {
+  color: #657786;
+  font-size: 14px;
+  margin-left: auto;
+}
+
+.comment-timestamp:hover {
+  text-decoration: underline;
+}
+
+.comment-text {
+  color: #14171a;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  word-wrap: break-word;
+}
+
+.comment-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-top: 8px;
+}
+
+.comment-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: none;
+  background: none;
+  color: #657786;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.comment-action:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.comment-action.liked {
+  color: #e0245e;
+}
+
+.comment-action.liked:hover {
+  background-color: rgba(224, 36, 94, 0.1);
+}
+
+.comment-action i {
+  font-size: 16px;
+}
+
+/* Nested Comments (Replies) */
+.comment-replies {
+  margin-top: 16px;
+  margin-left: 56px;
+  padding-left: 20px;
+  border-left: 3px solid #e1e8ed;
+  position: relative;
+}
+
+.comment-replies::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: -16px;
+  width: 20px;
+  height: 20px;
+  border-left: 3px solid #e1e8ed;
+  border-bottom: 3px solid #e1e8ed;
+  border-bottom-left-radius: 12px;
+}
+
+.comment-reply {
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  background-color: #f7f9fa;
+  border-radius: 12px;
+  border: 1px solid #e1e8ed;
+}
+
+.comment-reply:hover {
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Load More Comments */
+.load-more-comments {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e1e8ed;
+}
+
+.load-more-btn {
+  background-color: transparent;
+  border: 2px solid #dc3545;
+  color: #dc3545;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.load-more-btn:hover {
+  background-color: #dc3545;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Comment Form */
+.comment-form {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  display: flex;
+  gap: 16px;
+}
+
+.comment-form .comment-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid #e5e7eb;
+  object-fit: cover;
+}
+
+.comment-form .comment-input-container {
+  flex: 1;
+}
+
+.comment-form .comment-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 16px;
+  resize: vertical;
+  outline: none;
+  background: #fafbfc;
+  transition: all 0.3s ease;
+}
+
+.comment-form .comment-input:focus {
+  border-color: rgba(220, 53, 69, 0.5);
+  box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.08);
+}
+
+.comment-form .comment-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.comment-form .emoji-btn,
+.comment-form .attachment-btn {
+  padding: 8px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 18px;
+}
+
+.comment-form .emoji-btn:hover,
+.comment-form .attachment-btn:hover {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.comment-form .submit-comment-btn {
+  padding: 10px 24px;
+  background: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.comment-form .submit-comment-btn:hover {
+  background: #c82333;
+}
+
+/* Empty state */
+.comments-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #657786;
+}
+
+.comments-empty i {
+  font-size: 48px;
+  margin-bottom: 16px;
+  color: #e1e8ed;
+}
+
+.comments-empty h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #14171a;
+}
+
+.comments-empty p {
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .comments-section {
+    padding: 16px;
+    margin: 16px;
+    border-radius: 8px;
+  }
+  
+  .comment-replies {
+    margin-left: 0;
+    padding-left: 16px;
+  }
+  
+  .comment-actions {
+    gap: 16px;
+  }
+  
+  .comment-action {
+    padding: 4px 8px;
+    font-size: 13px;
+  }
+  
+  .comments-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+</style>
+    
+    <div id="post-media-container"></div>
+
+    <div class="post-stats">
+      <div class="stat-item">
+        <i class="far fa-heart"></i> <span id="like-count">87</span> Likes
+      </div>
+      <div class="stat-item">
+        <i class="far fa-comment"></i> <span id="comment-count">12</span> Comments
+      </div>
+      <div class="stat-item">
+        <i class="fas fa-retweet"></i> <span id="repost-count">5</span> Reposts
+      </div>
+    </div>
+
+    <div class="post-actions">
+      <button class="action-btn like-btn" id="like-btn">
+        <i class="far fa-heart"></i> <span>Like</span>
+      </button>
+      <button class="action-btn comment-btn" id="comment-btn">
+        <i class="far fa-comment"></i> <span>Comment</span>
+      </button>
+      <button class="action-btn repost-btn" id="repost-btn">
+        <i class="fas fa-retweet"></i> <span>Repost</span>
+      </button>
+      <button class="action-btn share-btn" id="share-btn">
+        <i class="far fa-share-square"></i> <span>Share</span>
+      </button>
+      <button class="action-btn save-btn" id="save-btn">
+        <i class="far fa-bookmark"></i> <span>Save</span>
+      </button>
+    </div>
+  </div>
+
+  
+  <div class="comment-form">
+    <img
+      src="../assets/images/profile.png"
+      alt="Profile"
+      class="comment-avatar" />
+    <div class="comment-input-container">
+      <textarea class="comment-input" placeholder="Tulis komentar Anda..."></textarea>
+      <div class="comment-actions">
+        <button class="emoji-btn"><i class="far fa-smile"></i></button>
+        <button class="attachment-btn"><i class="far fa-image"></i></button>
+        <button class="submit-comment-btn">Kirim</button>
+      </div>
+    </div>
+  </div>
+
+  
+  <div class="comments-section">
+    <h3>Komentar (<span id="total-comments">12</span>)</h3>
+
+    
+    <div class="comment">
+      <img
+        src="../assets/images/profile.png"
+        alt="Commenter"
+        class="comment-avatar" />
+      <div class="comment-content">
+        <div class="comment-header">
+          <span class="comment-author">@JavaScriptMaster</span>
+          <span class="comment-date">· 2h ago</span>
+        </div>
+        <div class="comment-text">
+          This is great news! Will the messaging feature include group chats?
+        </div>
+        <div class="comment-actions">
+          <button class="comment-like-btn"><i class="far fa-heart"></i> 8</button>
+          <button class="comment-reply-btn"><i class="far fa-comment"></i> Reply</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="comment">
+      <img
+        src="../assets/images/profile.png"
+        alt="Commenter"
+        class="comment-avatar" />
+      <div class="comment-content">
+        <div class="comment-header">
+          <span class="comment-author">@techbabe</span>
+          <span class="comment-date">· 1h ago</span>
+        </div>
+        <div class="comment-text">
+          Congrats on shipping this feature! Looking forward to using it.
+        </div>
+        <div class="comment-actions">
+          <button class="comment-like-btn"><i class="far fa-heart"></i> 5</button>
+          <button class="comment-reply-btn"><i class="far fa-comment"></i> Reply</button>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="comment">
+      <img
+        src="../assets/images/profile.png"
+        alt="Commenter"
+        class="comment-avatar" />
+      <div class="comment-content">
+        <div class="comment-header">
+          <span class="comment-author">@desainin</span>
+          <span class="comment-date">· 45m ago</span>
+        </div>
+        <div class="comment-text">
+          What tech stack did you use for the backend implementation?
+        </div>
+        <div class="comment-actions">
+          <button class="comment-like-btn"><i class="far fa-heart"></i> 3</button>
+          <button class="comment-reply-btn"><i class="far fa-comment"></i> Reply</button>
+        </div>
+
+        
+        <div class="comment-replies">
+          <div class="reply">
+            <img
+              src="../assets/images/profile.png"
+              alt="Replier"
+              class="comment-avatar" />
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">@Crocodilo</span>
+                <span class="comment-date">· 30m ago</span>
+              </div>
+              <div class="comment-text">
+                We used Node.js with Express and Socket.IO for real-time messaging. The database is MongoDB.
+              </div>
+              <div class="comment-actions">
+                <button class="comment-like-btn"><i class="far fa-heart"></i> 7</button>
+                <button class="comment-reply-btn"><i class="far fa-comment"></i> Reply</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="reply">
+            <img
+              src="../assets/images/profile.png"
+              alt="Replier"
+              class="comment-avatar" />
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">@desainin</span>
+                <span class="comment-date">· 25m ago</span>
+              </div>
+              <div class="comment-text">
+                Nice! Did you consider using Firebase instead?
+              </div>
+              <div class="comment-actions">
+                <button class="comment-like-btn"><i class="far fa-heart"></i> 2</button>
+                <button class="comment-reply-btn"><i class="far fa-comment"></i> Reply</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+    <div class="load-more-comments">
+      <button class="load-more-btn">Lihat lebih banyak komentar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // This script handles fetching and displaying the post details
+  document.addEventListener('DOMContentLoaded', function() {
+    // Get post ID from URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const postId = urlParams.get('id');
+    
+    if (!postId) {
+      console.error('No post ID provided');
+      document.getElementById('post-content').textContent = 'Error: Post not found';
+      return;
+    }
+    
+    // In a real app, you would fetch the post data from an API
+    // For this demo, we'll use sample data based on the provided post ID
+    fetchPostDetails(postId);
+    
+    // Set up action buttons
+    document.getElementById('like-btn').addEventListener('click', function() {
+      toggleLike(this);
+    });
+    
+    document.getElementById('save-btn').addEventListener('click', function() {
+      toggleSave(this);
+    });
+    
+    // Handle comment submission
+    const commentForm = document.querySelector('.comment-form');
+    if (commentForm) {
+      commentForm.querySelector('.submit-comment-btn').addEventListener('click', function() {
+        submitComment();
+      });
+    }
+    
+    // Handle loading more comments
+    const loadMoreBtn = document.querySelector('.load-more-btn');
+    if (loadMoreBtn) {
+      loadMoreBtn.addEventListener('click', function() {
+        loadMoreComments();
+      });
+    }
+    
+    // Check if we should focus on the comment box
+    if (localStorage.getItem('focusCommentBox') === 'true') {
+      // Focus on comment box with a slight delay to ensure page is rendered
+      setTimeout(function() {
+        const commentInput = document.querySelector('.comment-input');
+        if (commentInput) {
+          commentInput.focus();
+          // Clear the flag
+          localStorage.removeItem('focusCommentBox');
+        }
+      }, 500);
+    }
+  });
+  
+  function fetchPostDetails(postId) {
+    // In a real app, this function would make an API call
+    // For this demo, we'll simulate fetching the post
+    
+    // Sample post data based on post ID
+    const postData = getPostDataById(postId);
+    
+    if (!postData) {
+      document.getElementById('post-content').textContent = 'Error: Post not found';
+      return;
+    }
+    
+    // Update the post details
+    document.getElementById('post-author').textContent = postData.author;
+    document.getElementById('post-date').textContent = postData.date;
+    document.getElementById('post-meta').textContent = postData.meta;
+    document.getElementById('post-content').textContent = postData.content;
+    
+    // Update like, comment, repost counts
+    document.getElementById('like-count').textContent = postData.likes;
+    document.getElementById('comment-count').textContent = postData.comments;
+    document.getElementById('repost-count').textContent = postData.reposts;
+    document.getElementById('total-comments').textContent = postData.comments;
+    
+    // Handle post media (if any)
+    if (postData.media) {
+      renderPostMedia(postData.media);
+    }
+  }
+  
+  function getPostDataById(id) {
+    // Sample data for demo purposes
+    // In a real app, this would come from a database
+    const posts = {
+      '1': {
+        author: '@Crocodilo',
+        date: '· 3h ago',
+        meta: 'CTO @ PublicForum',
+        content: 'Just finished the backend implementation for our new messaging feature. Excited to see this go live next week! #WebDevelopment #Coding',
+        likes: 87,
+        comments: 12,
+        reposts: 5,
+        media: null
+      },
+      '2': {
+        author: '@Crocodilo',
+        date: '· Yesterday',
+        meta: 'CTO @ PublicForum',
+        content: 'Our new office setup is ready! 🚀 #WorkspaceGoals',
+        likes: 132,
+        comments: 28,
+        reposts: 14,
+        media: {
+          type: 'image',
+          url: '../assets/images/post.jpg',
+          alt: 'Office setup'
+        }
+      },
+      '3': {
+        author: '@Crocodilo',
+        date: '· 2 days ago',
+        meta: 'CTO @ PublicForum',
+        content: 'Check out this quick demo of our new feature! 👇',
+        likes: 202,
+        comments: 37,
+        reposts: 18,
+        media: {
+          type: 'video',
+          url: '../assets/video/post.mp4',
+          thumbnail: '../assets/video/post.mp4',
+          duration: '2:45'
+        }
+      },
+      '4': {
+        author: '@Crocodilo',
+        date: '· 3 days ago',
+        meta: 'CTO @ PublicForum',
+        content: 'Highlights from our team building event this weekend! 🎉 #TeamSpirit',
+        likes: 176,
+        comments: 42,
+        reposts: 8,
+        media: {
+          type: 'image_grid',
+          images: [
+            {url: '../assets/images/post.jpg', alt: 'Team photo 1'},
+            {url: '../assets/images/post2.jpg', alt: 'Team photo 2'},
+            {url: '../assets/images/post2.jpg', alt: 'Team photo 3'},
+            {url: '../assets/images/post.jpg', alt: 'Team photo 4'},
+            {url: '../assets/images/post.jpg', alt: 'Team photo 5'},
+            {url: '../assets/images/post2.jpg', alt: 'Team photo 6'},
+            {url: '../assets/images/post.jpg', alt: 'Team photo 7'}
+          ]
+        }
+      },
+      '5': {
+        author: '@Crocodilo',
+        date: '· 4 days ago',
+        meta: 'CTO @ PublicForum',
+        content: '',
+        likes: 254,
+        comments: 31,
+        reposts: 22,
+        media: {
+          type: 'image',
+          url: '../assets/images/post.jpg',
+          alt: 'Scenic view'
+        }
+      },
+      '6': {
+        author: '@Crocodilo',
+        date: '· 1 week ago',
+        meta: 'CTO @ PublicForum',
+        content: 'This is absolutely revolutionary for web development! 👇',
+        likes: 321,
+        comments: 64,
+        reposts: 143,
+        media: {
+          type: 'repost',
+          original: {
+            author: '@webdev_news',
+            date: '· 1 week ago',
+            meta: 'Web Development News',
+            content: 'Breaking: New JavaScript framework announced that promises 10x faster rendering speeds and 50% smaller bundle sizes. This could change everything about how we build web apps. #WebDev #JavaScript',
+            media: {
+              type: 'image',
+              url: '../assets/images/post.jpg',
+              alt: 'Framework announcement'
+            }
+          }
+        }
+      }
+    };
+    
+    return posts[id] || null;
+  }
+  
+  function renderPostMedia(media) {
+    const mediaContainer = document.getElementById('post-media-container');
+    
+    if (!media) {
+      mediaContainer.style.display = 'none';
+      return;
+    }
+    
+    mediaContainer.style.display = 'block';
+    
+    if (media.type === 'image') {
+      mediaContainer.innerHTML = `
+        <div class="post-media single-image">
+          <img src="${media.url}" alt="${media.alt}" class="post-image" />
+        </div>
+      `;
+    } else if (media.type === 'video') {
+      mediaContainer.innerHTML = `
+        <div class="post-media video-container">
+          <video id="detail-video" controls class="video-element">
+            <source src="${media.url}" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      `;
+    } else if (media.type === 'image_grid') {
+      // Render image grid (up to 4 images with a "+X more" indicator if needed)
+      const imagesToShow = media.images.slice(0, 4);
+      const remainingCount = Math.max(0, media.images.length - 4);
+      
+      let gridHTML = `<div class="post-media image-grid">`;
+      
+      // First row (1-2 images)
+      gridHTML += `<div class="grid-row">`;
+      if (imagesToShow.length > 0) {
+        gridHTML += `
+          <div class="grid-item">
+            <img src="${imagesToShow[0].url}" alt="${imagesToShow[0].alt}" class="grid-image" />
+          </div>
+        `;
+      }
+      if (imagesToShow.length > 1) {
+        gridHTML += `
+          <div class="grid-item">
+            <img src="${imagesToShow[1].url}" alt="${imagesToShow[1].alt}" class="grid-image" />
+          </div>
+        `;
+      }
+      gridHTML += `</div>`;
+      
+      // Second row (3-4 images, with possible +X indicator)
+      if (imagesToShow.length > 2) {
+        gridHTML += `<div class="grid-row">`;
+        gridHTML += `
+          <div class="grid-item">
+            <img src="${imagesToShow[2].url}" alt="${imagesToShow[2].alt}" class="grid-image" />
+          </div>
+        `;
+        
+        if (imagesToShow.length > 3) {
+          // Fourth image with +X indicator if needed
+          gridHTML += `
+            <div class="grid-item ${remainingCount > 0 ? 'more-images' : ''}">
+              <img src="${imagesToShow[3].url}" alt="${imagesToShow[3].alt}" class="grid-image" />
+              ${remainingCount > 0 ? `<div class="image-count">+${remainingCount}</div>` : ''}
+            </div>
+          `;
+        }
+        gridHTML += `</div>`;
+      }
+      
+      gridHTML += `</div>`;
+      mediaContainer.innerHTML = gridHTML;
+      
+    } else if (media.type === 'repost') {
+      // Render reposted content
+      const original = media.original;
+      
+      let repostHTML = `
+        <div class="reposted-content">
+          <div class="repost-header">
+            <i class="fas fa-retweet"></i> Reposted from
+            <span class="repost-author">${original.author}</span>
+          </div>
+          <div class="repost-post">
+            <div class="post-header">
+              <img
+                src="../assets/images/profile.png"
+                alt="Original poster"
+                class="post-avatar" />
+              <div class="post-info">
+                <div class="post-author">
+                  ${original.author} <span class="post-date">${original.date}</span>
+                </div>
+                <div class="post-meta">${original.meta}</div>
+              </div>
+            </div>
+            <div class="post-content">
+              ${original.content}
+            </div>
+      `;
+      
+      // Add original media if any
+      if (original.media) {
+        if (original.media.type === 'image') {
+          repostHTML += `
+            <div class="post-media single-image">
+              <img
+                src="${original.media.url}"
+                alt="${original.media.alt}"
+                class="post-image" />
+            </div>
+          `;
+        }
+      }
+      
+      repostHTML += `
+          </div>
+        </div>
+      `;
+      
+      mediaContainer.innerHTML = repostHTML;
+    }
+  }
+  
+  function toggleLike(button) {
+    const likeIcon = button.querySelector('i');
+    const likeCount = document.getElementById('like-count');
+    
+    if (likeIcon.classList.contains('far')) {
+      // Like the post
+      likeIcon.classList.remove('far');
+      likeIcon.classList.add('fas');
+      likeIcon.style.color = '#e0245e';
+      likeCount.textContent = parseInt(likeCount.textContent) + 1;
+    } else {
+      // Unlike the post
+      likeIcon.classList.remove('fas');
+      likeIcon.classList.add('far');
+      likeIcon.style.color = '';
+      likeCount.textContent = parseInt(likeCount.textContent) - 1;
+    }
+  }
+  
+  function toggleSave(button) {
+    const saveIcon = button.querySelector('i');
+    
+    if (saveIcon.classList.contains('far')) {
+      // Save the post
+      saveIcon.classList.remove('far');
+      saveIcon.classList.add('fas');
+      saveIcon.style.color = '#17bf63';
+    } else {
+      // Unsave the post
+      saveIcon.classList.remove('fas');
+      saveIcon.classList.add('far');
+      saveIcon.style.color = '';
+    }
+  }
+  
+  function submitComment() {
+    const commentInput = document.querySelector('.comment-input');
+    const commentText = commentInput.value.trim();
+    
+    if (!commentText) return;
+    
+    // In a real app, you would send this to the server
+    // For this demo, we'll just add it to the UI
+    
+    const commentsSection = document.querySelector('.comments-section');
+    const newComment = document.createElement('div');
+    newComment.className = 'comment';
+    newComment.innerHTML = `
+      <img src="../assets/images/profile.png" alt="Commenter" class="comment-avatar" />
+      <div class="comment-content">
+        <div class="comment-header">
+          <span class="comment-author">@You</span>
+          <span class="comment-date">· just now</span>
+        </div>
+        <div class="comment-text">
+          ${commentText}
+        </div>
+        <div class="comment-actions">
+          <button class="comment-like-btn"><i class="far fa-heart"></i> 0</button>
+          <button class="comment-reply-btn"><i class="far fa-comment"></i> Reply</button>
+        </div>
+      </div>
+    `;
+    
+    // Insert the new comment at the top of the comments
+    const firstComment = document.querySelector('.comment');
+    commentsSection.insertBefore(newComment, firstComment);
+    
+    // Clear the input
+    commentInput.value = '';
+    
+    // Update comment count
+    const commentCount = document.getElementById('comment-count');
+    const totalComments = document.getElementById('total-comments');
+    const newCount = parseInt(commentCount.textContent) + 1;
+    commentCount.textContent = newCount;
+    totalComments.textContent = newCount;
+  }
+  
+  function loadMoreComments() {
+    // In a real app, this would fetch more comments from the server
+    // For this demo, we'll just add some sample comments
+    
+    const commentsSection = document.querySelector('.comments-section');
+    const loadMoreBtn = document.querySelector('.load-more-btn');
+    
+    // Sample comments to add
+    const additionalComments = [
+      {
+        author: '@webdev_news',
+        date: '· 2h ago',
+        text: 'Great work! Looking forward to the release.'
+      },
+      {
+        author: '@aibot',
+        date: '· 3h ago',
+        text: 'What technologies did you use for the frontend?'
+      }
+    ];
+    
+    // Add the new comments
+    additionalComments.forEach(commentData => {
+      const newComment = document.createElement('div');
+      newComment.className = 'comment';
+      newComment.innerHTML = `
+        <img src="../assets/images/profile.png" alt="Commenter" class="comment-avatar" />
+        <div class="comment-content">
+          <div class="comment-header">
+            <span class="comment-author">${commentData.author}</span>
+            <span class="comment-date">${commentData.date}</span>
+          </div>
+          <div class="comment-text">
+            ${commentData.text}
+          </div>
+          <div class="comment-actions">
+            <button class="comment-like-btn"><i class="far fa-heart"></i> 0</button>
+            <button class="comment-reply-btn"><i class="far fa-comment"></i> Reply</button>
+          </div>
+        </div>
+      `;
+      
+      // Insert before the "load more" button
+      commentsSection.insertBefore(newComment, loadMoreBtn.parentNode);
+    });
+    
+    // Hide the "load more" button after loading all comments
+    loadMoreBtn.textContent = 'Tidak ada komentar lagi';
+    loadMoreBtn.disabled = true;
+  }
+</script>

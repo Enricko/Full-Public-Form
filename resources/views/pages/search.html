@@ -1,0 +1,362 @@
+
+
+<div class="container">
+    <h4 class="page-header mb-4 pb-2 border-bottom">Search Results..</h4>
+
+    
+    <div class="search-container mb-4">
+        <form id="searchForm" class="d-flex">
+            <input type="text" id="searchInput" class="form-control me-2" value="javascript" placeholder="Search forums, users, or tags..." />
+            <div class="ms-auto">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+
+    
+    <div class="search-filters mb-4">
+        <div class="row">
+            <div class="col-md-6 mb-3 mb-md-0">
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Sort by:</span>
+                    <div class="dropdown flex-grow-1">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="sortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Most Relevant
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="sortDropdown">
+                            <li><a class="dropdown-item active" href="javascript:void(0)"><i class="fas fa-check me-2 text-primary"></i>Most Relevant</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)">Most Recent</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)">Most Popular</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)">Most Commented</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex align-items-center">
+                    <span class="me-2">Time:</span>
+                    <div class="dropdown flex-grow-1">
+                        <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="timeDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            Anytime
+                        </button>
+                        <ul class="dropdown-menu w-100" aria-labelledby="timeDropdown">
+                            <li><a class="dropdown-item active" href="javascript:void(0)"><i class="fas fa-check me-2 text-primary"></i>Anytime</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)">Today</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)">This Week</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)">This Month</a></li>
+                            <li><a class="dropdown-item" href="javascript:void(0)">This Year</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <div class="mt-3">
+            <a class="text-decoration-none" data-bs-toggle="collapse" href="#advancedFilters" role="button" aria-expanded="false" aria-controls="advancedFilters">
+                <i class="fas fa-sliders-h me-1"></i> Advanced Filters <i class="fas fa-chevron-down ms-1 small"></i>
+            </a>
+            <div class="collapse mt-3" id="advancedFilters">
+                <div class="card card-body bg-light">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="categoryFilter" class="form-label">Category</label>
+                            <div class="dropdown w-100">
+                                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="categoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    All Categories
+                                </button>
+                                <ul class="dropdown-menu w-100 dropdown-menu-fixed" aria-labelledby="categoryDropdown">
+                                    <li><a class="dropdown-item active" href="javascript:void(0)">All Categories</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">Technology</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">Design</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">Business</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">Lifestyle</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">Health</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="locationFilter" class="form-label">Location</label>
+                            <div class="dropdown w-100">
+                                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="locationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    All Locations
+                                </button>
+                                <ul class="dropdown-menu w-100 dropdown-menu-fixed" aria-labelledby="locationDropdown">
+                                    <li><a class="dropdown-item active" href="javascript:void(0)">All Locations</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">Global</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">Japan</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">Indonesia</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="languageFilter" class="form-label">Language</label>
+                            <div class="dropdown w-100">
+                                <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    All Languages
+                                </button>
+                                <ul class="dropdown-menu w-100 dropdown-menu-fixed" aria-labelledby="languageDropdown">
+                                    <li><a class="dropdown-item active" href="javascript:void(0)">All Languages</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">English</a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)">Indonesian</a></li>                                    
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="form-label">Content Type</label>
+                            <div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="hasImage" value="image">
+                                    <label class="form-check-label" for="hasImage">Images</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="hasVideo" value="video">
+                                    <label class="form-check-label" for="hasVideo">Videos</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="hasLinks" value="links">
+                                    <label class="form-check-label" for="hasLinks">Links</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Date Range</label>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">From</span>
+                                <input type="text" class="form-control" placeholder="dd/mm/yyyy" id="dateFrom">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">To</span>
+                                <input type="text" class="form-control" placeholder="dd/mm/yyyy" id="dateTo">
+                                <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            </div>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <div class="d-grid gap-2 w-100">
+                                <button class="btn btn-danger">Apply Filters</button>
+                                <button class="btn btn-outline-secondary">Reset</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <ul class="nav nav-tabs mb-3" id="searchResultTabs">
+        <li class="nav-item">
+            <a class="nav-link active" id="all-tab" data-bs-toggle="tab" href="#all">All Results</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="posts-tab" data-bs-toggle="tab" href="#posts">Posts</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="users-tab" data-bs-toggle="tab" href="#users">Users</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="tags-tab" data-bs-toggle="tab" href="#tags">Tags</a>
+        </li>
+    </ul>
+
+    <div class="search-results">
+        <h4 id="result-count" class="mb-3">4 results found for "javascript"</h4>
+
+        
+        <div class="social-post">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div>
+                        <h5 class="mb-1 fw-bold">#javascript</h5>
+                        <div class="text-muted small">1,245 posts • 5,678 followers</div>
+                    </div>
+                    <div class="ms-auto">
+                        <button class="follow-btn">Ikuti</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="social-post">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle me-2" width="40" height="40" />
+                    <div>
+                        <div class="fw-bold">@JavaScriptMaster</div>
+                        <div class="text-muted small">JavaScript Developer & Instructor</div>
+                        <div class="text-muted small">500+ posts • Member since January 2023</div>
+                    </div>
+                    <div class="ms-auto">
+                        <button class="follow-btn">Ikuti</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="social-post">
+            <div class="post-header">
+                <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                <div class="post-info">
+                    <div class="post-author">
+                        @Crocodilo <span class="post-date">· 3h ago</span>
+                    </div>
+                    <div class="post-meta">CTO @ PublicForum</div>
+                </div>
+            </div>
+            <div class="post-content">
+                Just finished the frontend implementation for our new messaging
+                feature. Excited to see this go live next week! #javascript #WebDevelopment
+                #Coding
+            </div>
+            <div class="post-actions">
+                <button class="action-btn like-btn">
+                    <i class="far fa-heart"></i> <span>87</span>
+                </button>
+                <button class="action-btn comment-btn">
+                    <i class="far fa-comment"></i> <span>12</span>
+                </button>
+                <button class="action-btn repost-btn">
+                    <i class="fas fa-retweet"></i> <span>5</span>
+                </button>
+                <button class="action-btn share-btn">
+                    <i class="far fa-share-square"></i>
+                </button>
+                <button class="action-btn save-btn">
+                    <i class="far fa-bookmark"></i>
+                </button>
+            </div>
+        </div>
+
+        
+        <div class="social-post">
+            <div class="post-header">
+                <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                <div class="post-info">
+                    <div class="post-author">
+                        @MochacinoUno <span class="post-date">· Yesterday</span>
+                    </div>
+                    <div class="post-meta">Web Developer @ PublicForum</div>
+                </div>
+            </div>
+            <div class="post-content">
+                I Love javascript more than you know my love #javascript
+            </div>
+            <div class="post-media single-image">
+                <img src="../assets/images/javascript.png" alt="JavaScript" class="post-image" />
+            </div>
+            <div class="post-actions">
+                <button class="action-btn like-btn">
+                    <i class="far fa-heart"></i> <span>99</span>
+                </button>
+                <button class="action-btn comment-btn">
+                    <i class="far fa-comment"></i> <span>77</span>
+                </button>
+                <button class="action-btn repost-btn">
+                    <i class="fas fa-retweet"></i> <span>69</span>
+                </button>
+                <button class="action-btn share-btn">
+                    <i class="far fa-share-square"></i>
+                </button>
+                <button class="action-btn save-btn">
+                    <i class="far fa-bookmark"></i>
+                </button>
+            </div>
+        </div>
+        
+        
+        <nav aria-label="Search results pages" class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item disabled">
+                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                </li>
+                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                <li class="page-item">
+                    <a class="page-link" href="#">Next</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<style>
+
+/* Responsive styling */
+@media (max-width: 767.98px) {
+    .search-filters .row .col-md-6:first-child {
+        margin-bottom: 1rem;
+    }
+    
+    .col-md-4 {
+        margin-bottom: 1rem;
+    }
+}
+</style>
+
+<script>
+    // Initialize all dropdown functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to handle dropdown selection without closing collapse
+        function setupDropdown(dropdownId) {
+            const dropdownItems = document.querySelectorAll(`[aria-labelledby="${dropdownId}"] .dropdown-item`);
+            const dropdownButton = document.getElementById(dropdownId);
+            
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation(); // Stop event propagation to prevent dropdown from closing
+                    
+                    // Update button text - make sure to get the text content correctly
+                    const selectedText = this.textContent.trim().replace(/✓\s*/, '').replace(/^\s*✓\s*/, '');
+                    dropdownButton.textContent = selectedText;
+                    
+                    // Remove active class from all items
+                    dropdownItems.forEach(i => {
+                        i.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked item
+                    this.classList.add('active');
+                    
+                    // Log for debugging
+                    console.log(`Changed ${dropdownId} to: ${selectedText}`);
+                });
+            });
+        }
+        
+        // Setup all dropdowns
+        setupDropdown('sortDropdown');
+        setupDropdown('timeDropdown');
+        setupDropdown('categoryDropdown');
+        setupDropdown('locationDropdown');
+        setupDropdown('languageDropdown');
+        
+        // Prevent dropdown menus from closing when items are clicked
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent dropdown from closing when clicking inside
+            });
+        });
+        
+        // Make sure advanced filters stay open when interacting with them
+        const advancedFilters = document.querySelector('#advancedFilters');
+        if (advancedFilters) {
+            advancedFilters.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent collapse from closing when clicking inside
+            });
+        }
+        
+        // Prevent dropdown toggle from closing collapse
+        document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation(); // Prevent event from bubbling to collapse
+            });
+        });
+    });
+</script>

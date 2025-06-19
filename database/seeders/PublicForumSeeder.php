@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Faker\Factory as Faker;
 use App\Models\User;
 use App\Models\Post;
 use App\Models\Comment;
@@ -17,406 +18,464 @@ use App\Models\HashtagFollow;
 
 class PublicForumSeeder extends Seeder
 {
+    private $faker;
+    private $users = [];
+    private $hashtags = [];
+    private $posts = [];
+    private $comments = [];
+
+    public function __construct()
+    {
+        $this->faker = Faker::create();
+    }
+
     public function run()
     {
-        // Create sample users
-        $users = [
+        $this->command->info('🚀 Starting PublicForum seeder with 1000+ fake data...');
+
+        // Create users (200 users)
+        $this->createUsers(200);
+        
+        // Create hashtags (50 hashtags)
+        $this->createHashtags(50);
+        
+        // Create posts (500 posts)
+        $this->createPosts(500);
+        
+        // Create comments (800 comments)
+        $this->createComments(800);
+        
+        // Create likes (2000 likes)
+        $this->createLikes(2000);
+        
+        // Create saved posts (300 saved posts)
+        $this->createSavedPosts(300);
+        
+        // Create user follows (400 follows)
+        $this->createUserFollows(400);
+        
+        // Create hashtag follows (250 hashtag follows)
+        $this->createHashtagFollows(250);
+
+        $this->command->info('✅ PublicForum seeder completed successfully!');
+        $this->printStats();
+    }
+
+    private function createUsers($count)
+    {
+        $this->command->info("Creating {$count} users...");
+        
+        // Create admin user first
+        $adminUser = User::create([
+            'username' => 'admin',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'),
+            'display_name' => 'Administrator',
+            'role' => 'admin',
+            'avatar_url' => $this->faker->imageUrl(150, 150, 'people'),
+            'created_at' => now()->subDays(rand(30, 365)),
+        ]);
+        $this->users[] = $adminUser;
+
+        // Create predefined users
+        $predefinedUsers = [
             [
                 'username' => 'Crocodilo',
                 'email' => 'crocodilo@example.com',
-                'password' => Hash::make('password'),
                 'display_name' => 'Crocodilo',
                 'role' => 'admin',
-                'avatar_url' => 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
             ],
             [
                 'username' => 'JavaScriptMaster',
                 'email' => 'jsmaster@example.com',
-                'password' => Hash::make('password'),
                 'display_name' => 'JavaScript Master',
                 'role' => 'user',
-                'avatar_url' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
             ],
             [
                 'username' => 'desaintin',
                 'email' => 'desaintin@example.com',
-                'password' => Hash::make('password'),
                 'display_name' => 'desaintin',
                 'role' => 'user',
-                'avatar_url' => 'https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=150&h=150&fit=crop&crop=face',
             ],
             [
                 'username' => 'techbabe',
                 'email' => 'techbabe@example.com',
-                'password' => Hash::make('password'),
                 'display_name' => 'techbabe',
                 'role' => 'user',
-                'avatar_url' => 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
             ],
             [
                 'username' => 'techgurujon',
                 'email' => 'techguru@example.com',
-                'password' => Hash::make('password'),
                 'display_name' => 'Tech Guru Jon',
                 'role' => 'user',
-                'avatar_url' => 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
             ],
-            [
-                'username' => 'codecrafter',
-                'email' => 'codecrafter@example.com',
+        ];
+
+        foreach ($predefinedUsers as $userData) {
+            $user = User::create([
+                'username' => $userData['username'],
+                'email' => $userData['email'],
                 'password' => Hash::make('password'),
-                'display_name' => 'Code Crafter',
-                'role' => 'user',
-                'avatar_url' => 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face',
-            ],
-        ];
-
-        $createdUsers = [];
-        foreach ($users as $userData) {
-            $createdUsers[] = User::create($userData);
+                'display_name' => $userData['display_name'],
+                'role' => $userData['role'],
+                'avatar_url' => $this->faker->imageUrl(150, 150, 'people'),
+                'created_at' => now()->subDays(rand(30, 365)),
+            ]);
+            $this->users[] = $user;
         }
 
-        // Create sample hashtags
-        $hashtagsData = [
-            'javascript',
-            'webdevelopment',
-            'coding',
-            'workspacegoals',
-            'php',
-            'laravel',
-            'nodejs',
-            'react',
-            'typescript',
-            'vue',
-            'python',
-            'machinelearning',
-            'ai',
-            'blockchain',
-            'cybersecurity',
-            'devops',
-            'frontend',
-            'backend',
-            'fullstack',
-            'mobile',
+        // Create random users
+        $remainingCount = $count - count($this->users);
+        for ($i = 0; $i < $remainingCount; $i++) {
+            $username = $this->faker->unique()->userName;
+            $user = User::create([
+                'username' => $username,
+                'email' => $this->faker->unique()->safeEmail,
+                'password' => Hash::make('password'),
+                'display_name' => $this->faker->name,
+                'role' => $this->faker->randomElement(['user', 'user', 'user', 'user', 'admin']), // 80% users, 20% admin
+                'avatar_url' => $this->faker->imageUrl(150, 150, 'people'),
+                'created_at' => now()->subDays(rand(1, 365)),
+            ]);
+            $this->users[] = $user;
+        }
+    }
+
+    private function createHashtags($count)
+    {
+        $this->command->info("Creating {$count} hashtags...");
+        
+        $techHashtags = [
+            'javascript', 'php', 'python', 'java', 'css', 'html', 'react', 'vue', 'angular',
+            'nodejs', 'laravel', 'django', 'flask', 'express', 'mongodb', 'mysql', 'postgresql',
+            'docker', 'kubernetes', 'aws', 'azure', 'gcp', 'devops', 'cicd', 'git', 'github',
+            'typescript', 'graphql', 'rest', 'api', 'microservices', 'blockchain', 'ai', 'ml',
+            'machinelearning', 'datascience', 'bigdata', 'cybersecurity', 'webdev', 'mobiledev',
+            'ios', 'android', 'flutter', 'reactnative', 'frontend', 'backend', 'fullstack',
+            'coding', 'programming', 'opensource'
         ];
 
-        $createdHashtags = [];
-        foreach ($hashtagsData as $hashtagName) {
-            $createdHashtags[] = Hashtag::create(['name' => $hashtagName]);
+        $generalHashtags = [
+            'tech', 'startup', 'innovation', 'productivity', 'worklife', 'remote', 'freelance',
+            'career', 'learning', 'tutorial', 'tips', 'news', 'trends', 'community', 'networking'
+        ];
+
+        $allHashtags = array_merge($techHashtags, $generalHashtags);
+        
+        // Add more random hashtags if needed
+        while (count($allHashtags) < $count) {
+            $allHashtags[] = $this->faker->unique()->word . 'dev';
         }
 
-        // Create sample posts with different content types
-        $postsData = [
-            [
-                'user_id' => 1, // Crocodilo
-                'content' => 'Just finished the backend implementation for our new messaging feature. Excited to see this go live next week! #WebDevelopment #Coding',
-                'attachments' => [
-                    [
-                        'file_name' => 'backend_architecture.png',
-                        'file_path' => 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&h=600',
-                        'file_type' => 'image/png',
-                        'file_size' => 245760,
-                    ]
-                ],
-                'hashtags' => ['webdevelopment', 'coding']
-            ],
-            [
-                'user_id' => 2, // JavaScriptMaster
-                'content' => 'Our new office setup is ready! 🚀 #WorkspaceGoals',
-                'attachments' => [
-                    [
-                        'file_name' => 'office_setup.jpg',
-                        'file_path' => 'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&h=600',
-                        'file_type' => 'image/jpeg',
-                        'file_size' => 342100,
-                    ]
-                ],
-                'hashtags' => ['workspacegoals']
-            ],
-            [
-                'user_id' => 2, // JavaScriptMaster
-                'content' => 'This is a great news! Will the messaging feature include group chats? 🤔',
-                'hashtags' => ['javascript', 'webdevelopment']
-            ],
-            [
-                'user_id' => 3, // desaintin
-                'content' => 'What tech stack did you use for the backend implementation? Looking forward to using it!',
-                'hashtags' => ['webdevelopment', 'coding']
-            ],
-            [
-                'user_id' => 4, // techbabe
-                'content' => 'Congrats on shipping this feature! Looking forward to using it. 👏',
-                'hashtags' => []
-            ],
-            [
-                'user_id' => 5, // techgurujon
-                'content' => 'Working on a new React component library. Here\'s a sneak peek of the documentation site!',
-                'attachments' => [
-                    [
-                        'file_name' => 'react_docs_preview.png',
-                        'file_path' => 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&h=600',
-                        'file_type' => 'image/png',
-                        'file_size' => 456780,
-                    ],
-                    [
-                        'file_name' => 'component_demo.mp4',
-                        'file_path' => 'https://sample-videos.com/zip/10/mp4/SampleVideo_360x240_1mb.mp4',
-                        'file_type' => 'video/mp4',
-                        'file_size' => 1048576,
-                    ]
-                ],
-                'hashtags' => ['react', 'javascript', 'frontend']
-            ],
-            [
-                'user_id' => 6, // codecrafter
-                'content' => 'I love JavaScript more than you know my love #javascript',
-                'attachments' => [
-                    [
-                        'file_name' => 'js_love_meme.jpg',
-                        'file_path' => 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=800&h=600',
-                        'file_type' => 'image/jpeg',
-                        'file_size' => 178900,
-                    ]
-                ],
-                'hashtags' => ['javascript']
-            ],
-            [
-                'user_id' => 1, // Crocodilo
-                'content' => 'Check out the quick demo of our new feature! 🎥',
-                'attachments' => [
-                    [
-                        'file_name' => 'feature_demo.mp4',
-                        'file_path' => 'https://sample-videos.com/zip/10/mp4/SampleVideo_640x360_2mb.mp4',
-                        'file_type' => 'video/mp4',
-                        'file_size' => 2097152,
-                    ]
-                ],
-                'hashtags' => ['webdevelopment', 'coding']
-            ],
-            [
-                'user_id' => 3, // desaintin
-                'content' => 'Nice! Did you consider using Firebase instead?',
-                'hashtags' => []
-            ],
-            [
-                'user_id' => 4, // techbabe
-                'content' => 'Learning TypeScript has been a game-changer for my development workflow. Here are some resources I found helpful:',
-                'attachments' => [
-                    [
-                        'file_name' => 'typescript_resources.pdf',
-                        'file_path' => 'attachments/typescript_resources.pdf',
-                        'file_type' => 'application/pdf',
-                        'file_size' => 892000,
-                    ]
-                ],
-                'hashtags' => ['typescript', 'javascript', 'learning']
-            ],
+        foreach (array_slice($allHashtags, 0, $count) as $hashtagName) {
+            $hashtag = Hashtag::create([
+                'name' => strtolower($hashtagName),
+                'post_count' => 0,
+                'created_at' => now()->subDays(rand(1, 180)),
+            ]);
+            $this->hashtags[] = $hashtag;
+        }
+    }
+
+    private function createPosts($count)
+    {
+        $this->command->info("Creating {$count} posts...");
+        
+        $postTemplates = [
+            "Just finished working on %s! Excited to share this with the community. #%s #%s",
+            "Check out this amazing %s implementation I've been working on! 🚀 #%s",
+            "Learning %s has been a game-changer for my development workflow. Here's what I discovered: %s #%s #%s",
+            "Our new %s project is ready! Looking forward to your feedback. #%s #%s",
+            "Hot take: %s is %s than %s. What do you think? #%s #%s",
+            "Just deployed a new %s feature using %s. The performance improvements are incredible! #%s #%s",
+            "Working late on this %s project. The %s integration is trickier than expected. #%s #%s",
+            "Excited to announce that our %s application now supports %s! #%s #%s #%s",
+            "Question: What's your favorite %s library for %s development? #%s #%s",
+            "Pro tip: Always %s your %s before pushing to production! #%s #%s",
         ];
 
-        $createdPosts = [];
-        foreach ($postsData as $index => $postData) {
+        $techTerms = [
+            'API', 'microservice', 'database', 'frontend', 'backend', 'authentication system',
+            'real-time messaging', 'dashboard', 'mobile app', 'web application', 'component library',
+            'data visualization', 'machine learning model', 'neural network', 'blockchain application'
+        ];
+
+        $adjectives = ['better', 'faster', 'more scalable', 'more secure', 'cleaner', 'more efficient'];
+        $technologies = ['React', 'Vue', 'Angular', 'Node.js', 'Python', 'Java', 'PHP', 'Go', 'Rust'];
+
+        for ($i = 0; $i < $count; $i++) {
+            $template = $this->faker->randomElement($postTemplates);
+            $selectedHashtags = $this->faker->randomElements($this->hashtags, rand(1, 4));
+            
+            // Generate content based on template
+            $content = sprintf(
+                $template,
+                $this->faker->randomElement($techTerms),
+                $this->faker->randomElement($adjectives),
+                $this->faker->randomElement($technologies),
+                $selectedHashtags[0]->name ?? 'coding',
+                $selectedHashtags[1]->name ?? 'tech',
+                $selectedHashtags[2]->name ?? 'development'
+            );
+
             $post = Post::create([
-                'user_id' => $postData['user_id'],
-                'content' => $postData['content'],
-                'created_at' => now()->subDays(rand(0, 30))->subHours(rand(0, 23)),
+                'user_id' => $this->faker->randomElement($this->users)->id,
+                'content' => $content,
+                'like_count' => 0,
+                'comment_count' => 0,
+                'share_count' => rand(0, 20),
+                'created_at' => now()->subDays(rand(0, 60))->subHours(rand(0, 23)),
             ]);
 
-            // Add attachments if they exist
-            if (isset($postData['attachments'])) {
-                foreach ($postData['attachments'] as $order => $attachmentData) {
-                    Attachment::create([
-                        'post_id' => $post->id,
-                        'user_id' => $postData['user_id'],
-                        'file_name' => $attachmentData['file_name'],
-                        'file_path' => $attachmentData['file_path'],
-                        'file_size' => $attachmentData['file_size'],
-                        'file_type' => $attachmentData['file_type'],
-                        'upload_order' => $order,
-                    ]);
+            // Attach hashtags to post
+            foreach ($selectedHashtags as $hashtag) {
+                $post->hashtags()->attach($hashtag->id);
+                $hashtag->increment('post_count');
+            }
+
+            // Maybe add attachments (30% chance)
+            if ($this->faker->boolean(30)) {
+                $this->createAttachment($post);
+            }
+
+            $this->posts[] = $post;
+        }
+    }
+
+    private function createAttachment($post)
+    {
+        $attachmentTypes = [
+            [
+                'type' => 'image/jpeg',
+                'extension' => 'jpg',
+                'url_category' => 'technology',
+                'size_range' => [100000, 500000]
+            ],
+            [
+                'type' => 'image/png',
+                'extension' => 'png',
+                'url_category' => 'business',
+                'size_range' => [150000, 600000]
+            ],
+            [
+                'type' => 'video/mp4',
+                'extension' => 'mp4',
+                'url_category' => null,
+                'size_range' => [1000000, 5000000]
+            ],
+            [
+                'type' => 'application/pdf',
+                'extension' => 'pdf',
+                'url_category' => null,
+                'size_range' => [500000, 2000000]
+            ]
+        ];
+
+        $attachmentType = $this->faker->randomElement($attachmentTypes);
+        $fileName = $this->faker->word . '_' . rand(1000, 9999) . '.' . $attachmentType['extension'];
+        
+        $filePath = $attachmentType['url_category'] 
+            ? $this->faker->imageUrl(800, 600, $attachmentType['url_category'])
+            : 'attachments/' . $fileName;
+
+        Attachment::create([
+            'post_id' => $post->id,
+            'user_id' => $post->user_id,
+            'file_name' => $fileName,
+            'file_path' => $filePath,
+            'file_size' => rand($attachmentType['size_range'][0], $attachmentType['size_range'][1]),
+            'file_type' => $attachmentType['type'],
+            'upload_order' => 0,
+        ]);
+    }
+
+    private function createComments($count)
+    {
+        $this->command->info("Creating {$count} comments...");
+        
+        $commentTemplates = [
+            "Great work on this! I've been looking for something like this.",
+            "This is exactly what I needed. Thanks for sharing!",
+            "How did you handle the %s part? I'm struggling with that.",
+            "Love this implementation! Have you considered using %s instead?",
+            "This is awesome! Can you share the source code?",
+            "I tried something similar but ran into issues with %s. How did you solve it?",
+            "Fantastic! This gave me some great ideas for my current project.",
+            "Nice! I've been working on something similar. What challenges did you face?",
+            "This is really helpful. Do you have any documentation for this?",
+            "Amazing work! I'm definitely going to try this approach.",
+            "Thanks for the detailed explanation. This clarifies a lot of things for me.",
+            "I disagree with the %s approach. Have you tried %s?",
+            "This is brilliant! How long did it take you to implement this?",
+            "Great tutorial! Step %d was particularly helpful.",
+            "I'm getting an error with %s. Any suggestions?",
+        ];
+
+        $techIssues = ['authentication', 'database connection', 'API integration', 'state management', 'error handling'];
+        $alternatives = ['GraphQL', 'REST', 'WebSockets', 'Redis', 'MongoDB', 'PostgreSQL'];
+
+        for ($i = 0; $i < $count; $i++) {
+            $post = $this->faker->randomElement($this->posts);
+            $template = $this->faker->randomElement($commentTemplates);
+            
+            $content = sprintf(
+                $template,
+                $this->faker->randomElement($techIssues),
+                $this->faker->randomElement($alternatives),
+                rand(1, 10)
+            );
+
+            // 20% chance of being a reply to existing comment
+            $parentComment = null;
+            if ($this->faker->boolean(20) && !empty($this->comments)) {
+                $existingComments = array_filter($this->comments, function($comment) use ($post) {
+                    return $comment->post_id === $post->id;
+                });
+                if (!empty($existingComments)) {
+                    $parentComment = $this->faker->randomElement($existingComments);
                 }
             }
 
-            // Add hashtags if they exist
-            if (!empty($postData['hashtags'])) {
-                foreach ($postData['hashtags'] as $hashtagName) {
-                    $hashtag = collect($createdHashtags)->firstWhere('name', $hashtagName);
-                    if ($hashtag) {
-                        $post->hashtags()->attach($hashtag->id);
-                        $hashtag->increment('post_count');
+            $comment = Comment::create([
+                'post_id' => $post->id,
+                'user_id' => $this->faker->randomElement($this->users)->id,
+                'parent_comment_id' => $parentComment ? $parentComment->id : null,
+                'content' => $content,
+                'like_count' => 0,
+                'created_at' => $post->created_at->addMinutes(rand(1, 10080)), // Within a week of post
+            ]);
+
+            $post->increment('comment_count');
+            $this->comments[] = $comment;
+        }
+    }
+
+    private function createLikes($count)
+    {
+        $this->command->info("Creating {$count} likes...");
+        
+        $createdLikes = [];
+        
+        for ($i = 0; $i < $count; $i++) {
+            $user = $this->faker->randomElement($this->users);
+            
+            // 70% chance for post like, 30% for comment like
+            if ($this->faker->boolean(70)) {
+                $post = $this->faker->randomElement($this->posts);
+                $likeKey = "post_{$post->id}_user_{$user->id}";
+                
+                if (!in_array($likeKey, $createdLikes)) {
+                    Like::create([
+                        'user_id' => $user->id,
+                        'post_id' => $post->id,
+                    ]);
+                    $post->increment('like_count');
+                    $createdLikes[] = $likeKey;
+                }
+            } else {
+                if (!empty($this->comments)) {
+                    $comment = $this->faker->randomElement($this->comments);
+                    $likeKey = "comment_{$comment->id}_user_{$user->id}";
+                    
+                    if (!in_array($likeKey, $createdLikes)) {
+                        Like::create([
+                            'user_id' => $user->id,
+                            'comment_id' => $comment->id,
+                        ]);
+                        $comment->increment('like_count');
+                        $createdLikes[] = $likeKey;
                     }
                 }
             }
-
-            $createdPosts[] = $post;
         }
+    }
 
-        // Create sample comments
-        $commentsData = [
-            [
-                'post_id' => 1,
-                'user_id' => 2,
-                'content' => 'This is a great news! Will the messaging feature include group chats?',
-            ],
-            [
-                'post_id' => 1,
-                'user_id' => 3,
-                'content' => 'What tech stack did you use for the backend implementation?',
-            ],
-            [
-                'post_id' => 1,
-                'user_id' => 1,
-                'parent_comment_id' => 1, // Reply to first comment
-                'content' => 'Yes! Group chats will be included in the next iteration.',
-            ],
-            [
-                'post_id' => 1,
-                'user_id' => 1,
-                'parent_comment_id' => 2, // Reply to second comment
-                'content' => 'We used Node.js with Express and Socket.IO for real-time messaging. The database is MongoDB.',
-            ],
-            [
-                'post_id' => 2,
-                'user_id' => 4,
-                'content' => 'Congrats on shipping this feature! Looking forward to using it.',
-            ],
-            [
-                'post_id' => 6,
-                'user_id' => 1,
-                'content' => 'That component library looks amazing! When will it be available?',
-            ],
-            [
-                'post_id' => 6,
-                'user_id' => 5,
-                'parent_comment_id' => 6,
-                'content' => 'Planning to release it next month! Still working on the documentation.',
-            ],
-            [
-                'post_id' => 8,
-                'user_id' => 3,
-                'content' => 'Nice! Did you consider using Firebase instead?',
-            ],
-        ];
-
-        $createdComments = [];
-        foreach ($commentsData as $commentData) {
-            $comment = Comment::create(array_merge($commentData, [
-                'created_at' => now()->subDays(rand(0, 15))->subHours(rand(0, 23)),
-            ]));
-            $createdComments[] = $comment;
-
-            // Update post comment count
-            Post::find($commentData['post_id'])->increment('comment_count');
+    private function createSavedPosts($count)
+    {
+        $this->command->info("Creating {$count} saved posts...");
+        
+        $createdSaves = [];
+        
+        for ($i = 0; $i < $count; $i++) {
+            $user = $this->faker->randomElement($this->users);
+            $post = $this->faker->randomElement($this->posts);
+            $saveKey = "user_{$user->id}_post_{$post->id}";
+            
+            if (!in_array($saveKey, $createdSaves)) {
+                SavedPost::create([
+                    'user_id' => $user->id,
+                    'post_id' => $post->id,
+                    'created_at' => $post->created_at->addMinutes(rand(1, 43200)), // Within a month
+                ]);
+                $createdSaves[] = $saveKey;
+            }
         }
+    }
 
-        // Create sample likes for posts
-        $postLikes = [
-            ['user_id' => 2, 'post_id' => 1],
-            ['user_id' => 3, 'post_id' => 1],
-            ['user_id' => 4, 'post_id' => 1],
-            ['user_id' => 5, 'post_id' => 1],
-            ['user_id' => 1, 'post_id' => 2],
-            ['user_id' => 3, 'post_id' => 2],
-            ['user_id' => 4, 'post_id' => 2],
-            ['user_id' => 1, 'post_id' => 6],
-            ['user_id' => 2, 'post_id' => 6],
-            ['user_id' => 3, 'post_id' => 6],
-            ['user_id' => 6, 'post_id' => 7],
-            ['user_id' => 2, 'post_id' => 7],
-            ['user_id' => 4, 'post_id' => 8],
-            ['user_id' => 5, 'post_id' => 8],
-        ];
-
-        foreach ($postLikes as $likeData) {
-            Like::create($likeData);
-            Post::find($likeData['post_id'])->increment('like_count');
+    private function createUserFollows($count)
+    {
+        $this->command->info("Creating {$count} user follows...");
+        
+        $createdFollows = [];
+        
+        for ($i = 0; $i < $count; $i++) {
+            $follower = $this->faker->randomElement($this->users);
+            $following = $this->faker->randomElement($this->users);
+            
+            // Can't follow yourself
+            if ($follower->id !== $following->id) {
+                $followKey = "follower_{$follower->id}_following_{$following->id}";
+                
+                if (!in_array($followKey, $createdFollows)) {
+                    UserFollow::create([
+                        'follower_id' => $follower->id,
+                        'following_id' => $following->id,
+                        'created_at' => now()->subDays(rand(1, 180)),
+                    ]);
+                    $createdFollows[] = $followKey;
+                }
+            }
         }
+    }
 
-        // Create sample likes for comments
-        $commentLikes = [
-            ['user_id' => 1, 'comment_id' => 1],
-            ['user_id' => 4, 'comment_id' => 1],
-            ['user_id' => 2, 'comment_id' => 2],
-            ['user_id' => 5, 'comment_id' => 6],
-            ['user_id' => 1, 'comment_id' => 8],
-        ];
-
-        foreach ($commentLikes as $likeData) {
-            Like::create($likeData);
-            Comment::find($likeData['comment_id'])->increment('like_count');
+    private function createHashtagFollows($count)
+    {
+        $this->command->info("Creating {$count} hashtag follows...");
+        
+        $createdFollows = [];
+        
+        for ($i = 0; $i < $count; $i++) {
+            $user = $this->faker->randomElement($this->users);
+            $hashtag = $this->faker->randomElement($this->hashtags);
+            $followKey = "user_{$user->id}_hashtag_{$hashtag->id}";
+            
+            if (!in_array($followKey, $createdFollows)) {
+                HashtagFollow::create([
+                    'user_id' => $user->id,
+                    'hashtag_id' => $hashtag->id,
+                    'created_at' => now()->subDays(rand(1, 120)),
+                ]);
+                $createdFollows[] = $followKey;
+            }
         }
+    }
 
-        // Create sample saved posts
-        $savedPosts = [
-            ['user_id' => 2, 'post_id' => 1],
-            ['user_id' => 3, 'post_id' => 1],
-            ['user_id' => 4, 'post_id' => 6],
-            ['user_id' => 5, 'post_id' => 6],
-            ['user_id' => 1, 'post_id' => 7],
-            ['user_id' => 6, 'post_id' => 8],
-        ];
-
-        foreach ($savedPosts as $savedData) {
-            SavedPost::create($savedData);
-        }
-
-        // Create user follows
-        $userFollows = [
-            ['follower_id' => 2, 'following_id' => 1], // JavaScriptMaster follows Crocodilo
-            ['follower_id' => 3, 'following_id' => 1], // desaintin follows Crocodilo
-            ['follower_id' => 4, 'following_id' => 1], // techbabe follows Crocodilo
-            ['follower_id' => 5, 'following_id' => 1], // techgurujon follows Crocodilo
-            ['follower_id' => 1, 'following_id' => 2], // Crocodilo follows JavaScriptMaster
-            ['follower_id' => 3, 'following_id' => 2], // desaintin follows JavaScriptMaster
-            ['follower_id' => 1, 'following_id' => 5], // Crocodilo follows techgurujon
-            ['follower_id' => 2, 'following_id' => 5], // JavaScriptMaster follows techgurujon
-            ['follower_id' => 6, 'following_id' => 1], // codecrafter follows Crocodilo
-            ['follower_id' => 1, 'following_id' => 6], // Crocodilo follows codecrafter
-        ];
-
-        foreach ($userFollows as $followData) {
-            UserFollow::create($followData);
-        }
-
-        // Create hashtag follows
-        $hashtagFollows = [
-            ['user_id' => 1, 'hashtag_id' => 1], // Crocodilo follows javascript
-            ['user_id' => 1, 'hashtag_id' => 2], // Crocodilo follows webdevelopment
-            ['user_id' => 2, 'hashtag_id' => 1], // JavaScriptMaster follows javascript
-            ['user_id' => 2, 'hashtag_id' => 4], // JavaScriptMaster follows workspacegoals
-            ['user_id' => 3, 'hashtag_id' => 2], // desaintin follows webdevelopment
-            ['user_id' => 3, 'hashtag_id' => 3], // desaintin follows coding
-            ['user_id' => 4, 'hashtag_id' => 9], // techbabe follows typescript
-            ['user_id' => 5, 'hashtag_id' => 8], // techgurujon follows react
-            ['user_id' => 5, 'hashtag_id' => 1], // techgurujon follows javascript
-            ['user_id' => 6, 'hashtag_id' => 1], // codecrafter follows javascript
-        ];
-
-        foreach ($hashtagFollows as $followData) {
-            HashtagFollow::create($followData);
-        }
-
-        // Update share counts for some posts
-        $shareCounts = [
-            1 => 12, // First post has 12 shares
-            2 => 5,  // Second post has 5 shares
-            6 => 8,  // React component library post has 8 shares
-            7 => 3,  // JavaScript love post has 3 shares
-        ];
-
-        foreach ($shareCounts as $postId => $shareCount) {
-            Post::find($postId)->update(['share_count' => $shareCount]);
-        }
-
-        $this->command->info('✅ PublicForum seeder completed successfully!');
-        $this->command->info('📊 Created:');
-        $this->command->info('   - ' . count($createdUsers) . ' users');
-        $this->command->info('   - ' . count($createdHashtags) . ' hashtags');
-        $this->command->info('   - ' . count($createdPosts) . ' posts');
-        $this->command->info('   - ' . count($createdComments) . ' comments');
-        $this->command->info('   - ' . count($postLikes) . ' post likes');
-        $this->command->info('   - ' . count($commentLikes) . ' comment likes');
-        $this->command->info('   - ' . count($savedPosts) . ' saved posts');
-        $this->command->info('   - ' . count($userFollows) . ' user follows');
-        $this->command->info('   - ' . count($hashtagFollows) . ' hashtag follows');
+    private function printStats()
+    {
+        $this->command->info('📊 Final Statistics:');
+        $this->command->info('   - ' . User::count() . ' users');
+        $this->command->info('   - ' . Hashtag::count() . ' hashtags');
+        $this->command->info('   - ' . Post::count() . ' posts');
+        $this->command->info('   - ' . Comment::count() . ' comments');
+        $this->command->info('   - ' . Like::count() . ' likes');
+        $this->command->info('   - ' . Attachment::count() . ' attachments');
+        $this->command->info('   - ' . SavedPost::count() . ' saved posts');
+        $this->command->info('   - ' . UserFollow::count() . ' user follows');
+        $this->command->info('   - ' . HashtagFollow::count() . ' hashtag follows');
+        $this->command->info('🎉 Total records created: ' . (
+            User::count() + Hashtag::count() + Post::count() + Comment::count() + 
+            Like::count() + Attachment::count() + SavedPost::count() + 
+            UserFollow::count() + HashtagFollow::count()
+        ));
     }
 }

@@ -1,0 +1,954 @@
+@extends('index')
+
+@section('title', 'Profile - PublicForum')
+
+@section('content')
+    <div class="container">
+        <div class="notification-area" id="notificationArea">
+
+        </div>
+
+        <div class="profile-container">
+
+            <div class="profile-header">
+                <div class="profile-banner"></div>
+                <div class="profile-avatar">
+                    <div class="profile-avatar-container">
+                        <img src="../assets/images/profile.png" alt="Avatar" id="profileAvatar" />
+                    </div>
+                </div>
+                <div class="profile-info">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h3 id="profileName">{{ $user->username }}</h3>
+                            <div class="text-muted" id="profileBio">CTO @ PublicForum</div>
+                            <div class="text-muted small">Account created May 2025</div>
+                        </div>
+                        <button class="edit-profile-btn" id="editProfileBtn" onclick="profilePage.openEditModal()">
+                            <i class="fas fa-edit me-1"></i> Edit Profile
+                        </button>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="fw-bold text-muted small mb-2">COMMUNITY STATISTICS</div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div>Posts</div>
+                                <div class="fw-bold">127</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div>Comments</div>
+                                <div class="fw-bold">943</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div>Followers</div>
+                                <div class="fw-bold">316</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="posts-tab" onclick="profilePage.switchTab('posts')" type="button"
+                        role="tab">
+                        Posts
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="comments-tab" onclick="profilePage.switchTab('comments')" type="button"
+                        role="tab">
+                        Comments
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="likes-tab" onclick="profilePage.switchTab('likes')" type="button"
+                        role="tab">
+                        Likes
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="saved-tab" onclick="profilePage.switchTab('saved')" type="button"
+                        role="tab">
+                        Saved
+                    </button>
+                </li>
+            </ul>
+
+
+            <div class="tab-content" id="profileTabsContent">
+
+                <div class="tab-pane fade show active" id="posts" role="tabpanel" aria-labelledby="posts-tab">
+
+                    <div class="social-post" data-post-id="1">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @Crocodilo <span class="post-date">· 3h ago</span>
+                                </div>
+                                <div class="post-meta">CTO @ PublicForum</div>
+                            </div>
+                            <div class="post-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            Just finished the backend implementation for our new messaging
+                            feature. Excited to see this go live next week! #WebDevelopment
+                            #Coding
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn">
+                                <i class="far fa-heart"></i> <span>87</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>12</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>5</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="social-post" data-post-id="2">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @Crocodilo <span class="post-date">· Yesterday</span>
+                                </div>
+                                <div class="post-meta">CTO @ PublicForum</div>
+                            </div>
+                            <div class="post-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            Our new office setup is ready! 🚀 #WorkspaceGoals
+                        </div>
+                        <div class="post-media single-image">
+                            <img src="../assets/images/post.jpg" alt="Office setup" class="post-image" />
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn">
+                                <i class="far fa-heart"></i> <span>132</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>28</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>14</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="social-post" data-post-id="3">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @Crocodilo <span class="post-date">· 2 days ago</span>
+                                </div>
+                                <div class="post-meta">CTO @ PublicForum</div>
+                            </div>
+                            <div class="post-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+
+                        <div class="post-content">
+                            Check out this quick demo of our new feature! 👇
+                        </div>
+
+
+                        <div class="post-media video-container">
+                            <video id="demo-video" controls class="video-element">
+                                <source src="../assets/video/post.mp4" type="video/mp4" />
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="video-placeholder" onclick="playVideo('demo-video')">
+
+                                <div class="video-thumbnail-wrapper">
+                                    <video class="video-thumbnail-source" muted>
+                                        <source src="../assets/video/post.mp4" type="video/mp4" />
+                                    </video>
+                                    <div class="play-button">
+                                        <i class="fas fa-play"></i>
+                                    </div>
+                                    <div class="video-duration">2:45</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="post-actions">
+                            <button class="action-btn like-btn">
+                                <i class="far fa-heart"></i> <span>202</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>37</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>18</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="social-post" data-post-id="4">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @Crocodilo <span class="post-date">· 3 days ago</span>
+                                </div>
+                                <div class="post-meta">CTO @ PublicForum</div>
+                            </div>
+                            <div class="post-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            Highlights from our team building event this weekend! 🎉 #TeamSpirit
+                        </div>
+                        <div class="post-media image-grid">
+                            <div class="grid-row">
+                                <div class="grid-item">
+                                    <img src="../assets/images/post.jpg" alt="Team photo 1" class="grid-image" />
+                                </div>
+                                <div class="grid-item">
+                                    <img src="../assets/images/post2.jpg" alt="Team photo 2" class="grid-image" />
+                                </div>
+                            </div>
+                            <div class="grid-row">
+                                <div class="grid-item">
+                                    <img src="../assets/images/post2.jpg" alt="Team photo 3" class="grid-image" />
+                                </div>
+                                <div class="grid-item more-images">
+                                    <img src="../assets/images/post.jpg" alt="Team photo 4" class="grid-image" />
+                                    <div class="image-count">+3</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn">
+                                <i class="far fa-heart"></i> <span>176</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>42</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>8</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="social-post" data-post-id="5">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @Crocodilo <span class="post-date">· 4 days ago</span>
+                                </div>
+                                <div class="post-meta">CTO @ PublicForum</div>
+                            </div>
+                            <div class="post-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-media single-image">
+                            <img src="../assets/images/post.jpg" alt="Scenic view" class="post-image" />
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn">
+                                <i class="far fa-heart"></i> <span>254</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>31</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>22</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="social-post" data-post-id="6">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @Crocodilo <span class="post-date">· 1 week ago</span>
+                                </div>
+                                <div class="post-meta">CTO @ PublicForum</div>
+                            </div>
+                            <div class="post-options">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            This is absolutely revolutionary for web development! 👇
+                        </div>
+                        <div class="reposted-content">
+                            <div class="repost-header">
+                                <i class="fas fa-retweet"></i> Reposted from
+                                <span class="repost-author">@webdev_news</span>
+                            </div>
+                            <div class="repost-post">
+                                <div class="post-header">
+                                    <img src="../assets/images/profile.png" alt="Original poster" class="post-avatar" />
+                                    <div class="post-info">
+                                        <div class="post-author">
+                                            @webdev_news <span class="post-date">· 1 week ago</span>
+                                        </div>
+                                        <div class="post-meta">Web Development News</div>
+                                    </div>
+                                </div>
+                                <div class="post-content">
+                                    Breaking: New JavaScript framework announced that promises 10x
+                                    faster rendering speeds and 50% smaller bundle sizes. This could
+                                    change everything about how we build web apps. #WebDev #JavaScript
+                                </div>
+                                <div class="post-media single-image">
+                                    <img src="../assets/images/post.jpg" alt="Framework announcement"
+                                        class="post-image" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn">
+                                <i class="far fa-heart"></i> <span>321</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>64</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>143</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
+
+
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div>You commented on <a href="#" class="user-link">@ai_master's post</a> · <span
+                                    class="comment-date">2 days ago</span></div>
+                        </div>
+
+                        <div class="original-post-preview">
+                            <div class="user-info">
+                                <span class="username">@ai_master</span> · <span class="post-date">Hari ini</span>
+                            </div>
+                            <div class="post-content">
+                                Lihat robot ini menari sambil ngoding JavaScript 🤯
+                            </div>
+                            <div class="post-image-container">
+                                <img src="../assets/images/post2.jpg" alt="Robot dancing while coding"
+                                    class="post-preview-image">
+                            </div>
+                        </div>
+
+                        <div class="comment-content">
+                            This is absolutely incredible! The coordination required to dance while coding is next level AI.
+                        </div>
+
+                        <div class="comment-actions">
+                            <button class="action-btn like-btn"><span class="heart-icon">❤</span> <span>42</span></button>
+                            <button class="action-btn reply-btn"><i class="far fa-comment"></i> Reply</button>
+                        </div>
+                    </div>
+
+
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <div>You commented on <a href="#" class="user-link">@tech_daily's post</a> · <span
+                                    class="comment-date">1 week ago</span></div>
+                        </div>
+
+                        <div class="original-post-preview">
+                            <div class="user-info">
+                                <span class="username">@tech_daily</span> · <span class="post-date">11 Mei</span>
+                            </div>
+                            <div class="post-content">
+                                What's your prediction for the most important programming language in 2026?
+                            </div>
+                        </div>
+
+                        <div class="comment-content">
+                            Python will continue to dominate due to its versatility in AI, data science, and web
+                            development. However, I think Rust will see the
+                            biggest
+                            growth as more companies prioritize performance and safety.
+                        </div>
+
+                        <div class="comment-actions">
+                            <button class="action-btn like-btn"><span class="heart-icon">❤</span>
+                                <span>156</span></button>
+                            <button class="action-btn reply-btn"><i class="far fa-comment"></i> Reply</button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="tab-pane fade" id="likes" role="tabpanel" aria-labelledby="likes-tab">
+
+                    <div class="social-post" data-post-id="7">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @elonmusk <span class="post-date">· 13 Mei</span>
+                                </div>
+                                <div class="post-meta">CEO of multiple companies</div>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            Robot humanoid mulai latihan angkat barbel. 🏋️
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn active">
+                                <i class="far fa-heart"></i> <span>254</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>31</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>22</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="social-post" data-post-id="8">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @ai_master <span class="post-date">· Hari ini</span>
+                                </div>
+                                <div class="post-meta">AI Researcher</div>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            Lihat robot ini menari sambil ngoding JavaScript 🤯
+                        </div>
+                        <div class="post-image">
+                            <img src="../assets/images/post2.jpg" alt="Robot dancing" class="post-media" />
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn active">
+                                <i class="far fa-heart"></i> <span>254</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>31</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>22</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="tab-pane fade" id="saved" role="tabpanel" aria-labelledby="saved-tab">
+
+
+                    <div class="social-post" data-post-id="9">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @techcrunch <span class="post-date">· 9 Mei</span>
+                                </div>
+                                <div class="post-meta">Tech News Network</div>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            Breaking: The next generation of GPUs announced today with 2x
+                            performance at half the power consumption.
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn active">
+                                <i class="far fa-heart"></i> <span>254</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>31</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>22</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn active">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="social-post" data-post-id="10">
+                        <div class="post-header">
+                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
+                            <div class="post-info">
+                                <div class="post-author">
+                                    @ai_master <span class="post-date">· Hari ini</span>
+                                </div>
+                                <div class="post-meta">AI Researcher</div>
+                            </div>
+                        </div>
+                        <div class="post-content">
+                            Lihat robot ini menari sambil ngoding JavaScript 🤯
+                        </div>
+                        <div class="post-image">
+                            <img src="../assets/images/post2.jpg" alt="Robot dancing" class="post-media" />
+                        </div>
+                        <div class="post-actions">
+                            <button class="action-btn like-btn active">
+                                <i class="far fa-heart"></i> <span>254</span>
+                            </button>
+                            <button class="action-btn comment-btn">
+                                <i class="far fa-comment"></i> <span>31</span>
+                            </button>
+                            <button class="action-btn repost-btn">
+                                <i class="fas fa-retweet"></i> <span>22</span>
+                            </button>
+                            <button class="action-btn share-btn">
+                                <i class="far fa-share-square"></i>
+                            </button>
+                            <button class="action-btn save-btn active">
+                                <i class="far fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="custom-modal" id="customEditModal">
+                <div class="custom-modal-dialog">
+                    <div class="custom-modal-content">
+                        <div class="custom-modal-header">
+                            <h5 class="custom-modal-title">Edit Profile</h5>
+                            <button type="button" class="custom-close" onclick="profilePage.closeEditModal()">
+                                &times;
+                            </button>
+                        </div>
+                        <div class="custom-modal-body">
+                            <form id="editProfileForm">
+                                <div class="text-center mb-4">
+                                    <label class="form-label">Profile Picture</label>
+                                    <div class="position-relative mx-auto" style="width: 120px; height: 120px">
+                                        <div
+                                            style="
+                    width: 120px;
+                    height: 120px;
+                    border-radius: 50%;
+                    overflow: hidden;
+                    border: 3px solid #dc3545;
+                  ">
+                                            <img src="../assets/images/post.jpg" alt="Profile Picture" id="previewAvatar"
+                                                style="width: 100%; height: 100%; object-fit: cover" />
+                                        </div>
+                                        <div class="position-absolute bottom-0 end-0 bg-danger rounded-circle d-flex justify-content-center align-items-center"
+                                            style="
+                    width: 36px;
+                    height: 36px;
+                    cursor: pointer;
+                    border: 2px solid #fff;
+                  "
+                                            onclick="document.getElementById('avatarUpload').click()">
+                                            <i class="fas fa-camera text-white" style="font-size: 16px"></i>
+                                        </div>
+                                        <input type="file" id="avatarUpload" accept="image/*" style="display: none"
+                                            onchange="profilePage.previewImage(this)" />
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="displayName" class="form-label">Display Name</label>
+                                    <input type="text" class="form-control" id="displayName" value="Crocodilo" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="bioMe" class="form-label">Bio</label>
+                                    <textarea class="form-control" id="bioMe" rows="4">
+CTO @ PublicForum</textarea>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="custom-modal-footer">
+                            <button type="button" class="btn-secondary mx-1" onclick="profilePage.closeEditModal()">
+                                Cancel
+                            </button>
+                            <button type="button" class="btn-danger mx-1" onclick="profilePage.saveProfile()">
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                // Video player functions
+                function playVideo(videoId) {
+                    const video = document.getElementById(videoId);
+                    const placeholder = video.parentNode.querySelector(".video-placeholder");
+
+                    if (video && placeholder) {
+                        video.style.display = "block";
+                        placeholder.style.display = "none";
+                        video.play();
+                    }
+                }
+
+                // Create a global object to hold all profile page functions
+                window.profilePage = {
+                    // Function to open the edit modal
+                    openEditModal: function() {
+                        console.log("Opening edit modal");
+                        document.getElementById("customEditModal").style.display = "block";
+                    },
+
+                    // Function to close the edit modal
+                    closeEditModal: function() {
+                        console.log("Closing edit modal");
+                        document.getElementById("customEditModal").style.display = "none";
+                    },
+
+                    // Function to switch tabs
+                    switchTab: function(tabId) {
+                        console.log("Switching to tab:", tabId);
+
+                        // Remove active class from all tab buttons
+                        var tabButtons = document.querySelectorAll(".nav-tabs .nav-link");
+                        tabButtons.forEach(function(button) {
+                            button.classList.remove("active");
+                        });
+
+                        // Add active class to the clicked tab button
+                        document.getElementById(tabId + "-tab").classList.add("active");
+
+                        // Hide all tab panes
+                        var tabPanes = document.querySelectorAll(".tab-pane");
+                        tabPanes.forEach(function(pane) {
+                            pane.classList.remove("show");
+                            pane.classList.remove("active");
+                        });
+
+                        // Show the selected tab pane
+                        var selectedPane = document.getElementById(tabId);
+                        selectedPane.classList.add("fade");
+                        selectedPane.classList.add("show");
+                        selectedPane.classList.add("active");
+
+                        // After switching tabs, make posts clickable again
+                        if (typeof window.makePostsClickable === 'function') {
+                            setTimeout(function() {
+                                window.makePostsClickable();
+                            }, 100);
+                        }
+                    },
+
+                    // Function to preview the selected image
+                    previewImage: function(input) {
+                        console.log("Previewing image");
+                        if (input.files && input.files[0]) {
+                            var reader = new FileReader();
+
+                            reader.onload = function(e) {
+                                document.getElementById("previewAvatar").src = e.target.result;
+                            };
+
+                            reader.readAsDataURL(input.files[0]);
+                        }
+                    },
+
+                    // Function to save profile changes
+                    saveProfile: function() {
+                        console.log("Saving profile");
+
+                        // Get form values
+                        var displayName = document.getElementById("displayName").value;
+                        var bioMe = document.getElementById("bioMe").value;
+
+                        // Update profile info
+                        document.getElementById("profileName").textContent = displayName;
+                        document.getElementById("profileBio").textContent = bioMe;
+
+                        // Update avatar if changed
+                        var previewAvatar = document.getElementById("previewAvatar");
+                        if (previewAvatar.src !== "../assets/images/post.jpg") {
+                            document.getElementById("profileAvatar").src = previewAvatar.src;
+                        }
+
+                        // Close modal
+                        this.closeEditModal();
+
+                        // Show notification
+                        this.showNotification();
+                    },
+
+                    // Function to show notification
+                    showNotification: function() {
+                        console.log("Showing notification");
+                        var notificationArea = document.getElementById("notificationArea");
+                        notificationArea.innerHTML = "";
+
+                        var alertHTML = `
+        <div class="alert alert-success">
+          <i class="fas fa-check-circle me-2"></i>
+          Profile updated successfully!
+          <button type="button" class="btn-close" onclick="this.parentNode.style.display='none'"></button>
+        </div>
+      `;
+
+                        notificationArea.innerHTML = alertHTML;
+
+                        // Auto dismiss after 5 seconds
+                        setTimeout(function() {
+                            var alert = notificationArea.querySelector(".alert");
+                            if (alert) {
+                                alert.style.display = "none";
+                            }
+                        }, 5000);
+                    },
+
+                    // Initialize the profile page
+                    init: function() {
+                        console.log("Initializing profile page");
+
+                        // Close modal when clicking outside of it
+                        window.addEventListener("click", function(event) {
+                            if (event.target === document.getElementById("customEditModal")) {
+                                profilePage.closeEditModal();
+                            }
+                        });
+
+                        // Make posts clickable
+                        if (typeof window.makePostsClickable === 'function') {
+                            window.makePostsClickable();
+                        } else {
+                            console.log("makePostsClickable function not found, setting up retry...");
+                            let attempts = 0;
+                            const checkInterval = setInterval(function() {
+                                attempts++;
+                                if (typeof window.makePostsClickable === 'function') {
+                                    window.makePostsClickable();
+                                    clearInterval(checkInterval);
+                                    console.log("Successfully made posts clickable after retry");
+                                } else if (attempts >= 10) {
+                                    console.error("Failed to make posts clickable after 10 attempts");
+                                    clearInterval(checkInterval);
+
+                                    // Fallback direct implementation
+                                    profilePage.applyFallbackClickHandlers();
+                                }
+                            }, 300);
+                        }
+
+                        console.log("Profile page initialized");
+                    },
+
+                    // Fallback implementation if makePostsClickable is not available
+                    applyFallbackClickHandlers: function() {
+                        console.log("Applying fallback click handlers");
+                        document.querySelectorAll('.social-post').forEach((post, index) => {
+                            if (!post.closest('.reposted-content')) {
+                                if (!post.dataset.postId) {
+                                    post.dataset.postId = index + 1;
+                                }
+
+                                post.onclick = function(event) {
+                                    if (!event.target.closest('.post-actions') &&
+                                        !event.target.closest('.video-placeholder') &&
+                                        !event.target.closest('video') &&
+                                        event.target.tagName !== 'A' &&
+                                        event.target.tagName !== 'BUTTON') {
+                                        console.log("Direct click handler: navigating to post " + this.dataset
+                                            .postId);
+                                        window.loadPage('comment', this.dataset.postId);
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                    }
+                                };
+
+                                post.style.cursor = 'pointer';
+                            }
+                        });
+                    }
+                };
+
+                // Document ready handler
+                document.addEventListener("DOMContentLoaded", function() {
+                    // Load the first frame of the video to use as thumbnail
+                    const thumbnailVideos = document.querySelectorAll(
+                        ".video-thumbnail-source"
+                    );
+                    thumbnailVideos.forEach((video) => {
+                        // Load just enough of the video to show the first frame
+                        video.addEventListener("loadeddata", function() {
+                            // Pause immediately to just show the first frame
+                            this.currentTime = 0.1; // Small offset to ensure we get a frame
+                            this.pause();
+                        });
+
+                        // Make sure it's muted
+                        video.muted = true;
+                        video.preload = "metadata";
+                        // Start loading
+                        video.load();
+                    });
+
+                    // Handle video end event to show placeholder again
+                    const videos = document.querySelectorAll(".video-element");
+                    videos.forEach((video) => {
+                        video.addEventListener("ended", function() {
+                            this.style.display = "none";
+                            const placeholder =
+                                this.parentNode.querySelector(".video-placeholder");
+                            if (placeholder) {
+                                placeholder.style.display = "block";
+                            }
+                        });
+                    });
+
+                    // Handle interaction functionality for action buttons
+                    function handleInteraction(button, type) {
+                        if (type === "like" || type === "save") {
+                            button.classList.toggle("active");
+
+                            // Update icon if needed
+                            const icon = button.querySelector("i");
+                            if (type === "like") {
+                                if (button.classList.contains("active")) {
+                                    icon.className = "fas fa-heart";
+                                    // Optionally increment counter
+                                    const counter = button.querySelector("span");
+                                    if (counter) {
+                                        counter.textContent = parseInt(counter.textContent) + 1;
+                                    }
+                                } else {
+                                    icon.className = "far fa-heart";
+                                    // Optionally decrement counter
+                                    const counter = button.querySelector("span");
+                                    if (counter) {
+                                        counter.textContent = parseInt(counter.textContent) - 1;
+                                    }
+                                }
+                            } else if (type === "save") {
+                                if (button.classList.contains("active")) {
+                                    icon.className = "fas fa-bookmark";
+                                } else {
+                                    icon.className = "far fa-bookmark";
+                                }
+                            }
+                        }
+
+                        console.log(`${type} button clicked`);
+                    }
+
+                    // Attach event listeners to interaction buttons
+                    const likeButtons = document.querySelectorAll(".like-btn");
+                    likeButtons.forEach((button) => {
+                        button.addEventListener("click", function() {
+                            handleInteraction(this, "like");
+                        });
+                    });
+
+                    // Comment buttons
+                    const commentButtons = document.querySelectorAll(".comment-btn");
+                    commentButtons.forEach((button) => {
+                        button.addEventListener("click", function() {
+                            handleInteraction(this, "comment");
+                        });
+                    });
+
+                    // Repost buttons
+                    const repostButtons = document.querySelectorAll(".repost-btn");
+                    repostButtons.forEach((button) => {
+                        button.addEventListener("click", function() {
+                            handleInteraction(this, "repost");
+                        });
+                    });
+
+                    // Share buttons
+                    const shareButtons = document.querySelectorAll(".share-btn");
+                    shareButtons.forEach((button) => {
+                        button.addEventListener("click", function() {
+                            handleInteraction(this, "share");
+                        });
+                    });
+
+                    // Save buttons
+                    const saveButtons = document.querySelectorAll(".save-btn");
+                    saveButtons.forEach((button) => {
+                        button.addEventListener("click", function() {
+                            handleInteraction(this, "save");
+                        });
+                    });
+
+                    // Initialize the profile page
+                    profilePage.init();
+                });
+            </script>
+        </div>
+    </div>
+@endsection

@@ -86,10 +86,9 @@
                         <i class="fas fa-edit"></i> Posting Baru
                     </button>
                     <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="loadPage('home')">🏠
+                        <li class="nav-item"><a class="nav-link" href="{{ route('home') }}" >🏠
                                 Home</a></li>
-                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)"
-                                onclick="loadPage('profile')">👤 Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('profile') }}">👤 Profile</a></li>
                         <li class="nav-item"><a class="nav-link" href="javascript:void(0)"
                                 onclick="loadPage('search')">🔍 Search</a></li>
                         <li class="nav-item"><a class="nav-link" href="javascript:void(0)"

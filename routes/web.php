@@ -3,8 +3,11 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+
 // Alternative endpoints for infinite scroll (optional)
 Route::get('/posts/load-more', [HomeController::class, 'loadMore'])->name('posts.load-more');
 Route::get('/posts/refresh', [HomeController::class, 'refresh'])->name('posts.refresh');

@@ -1,4 +1,8 @@
+@extends('index')
 
+@section('title', 'About - PublicForum')
+
+@section('content')
 
 <div class="container">
 
@@ -171,3 +175,5 @@
     <p class="small">Shaping the future of online discourse, one conversation at a time.</p>
   </div>
 </div>
+
+@endsection

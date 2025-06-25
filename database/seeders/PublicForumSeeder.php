@@ -72,6 +72,7 @@ class PublicForumSeeder extends Seeder
             'password' => Hash::make('password'),
             'display_name' => 'Administrator',
             'role' => 'admin',
+            'bio' => 'This is the admin user for the PublicForum. Here to manage everything!',
             'avatar_url' => $this->faker->imageUrl(150, 150, 'people'),
             'created_at' => now()->subDays(rand(30, 365)),
         ]);
@@ -95,29 +96,35 @@ class PublicForumSeeder extends Seeder
                 'username' => 'Crocodilo',
                 'email' => 'crocodilo@example.com',
                 'display_name' => 'Crocodilo',
+            'bio' => 'This is the admin user for the PublicForum. Here to manage everything!',
+
                 'role' => 'admin',
             ],
             [
                 'username' => 'JavaScriptMaster',
                 'email' => 'jsmaster@example.com',
+            'bio' => 'This is the admin user for the PublicForum. Here to manage everything!',
                 'display_name' => 'JavaScript Master',
                 'role' => 'user',
             ],
             [
                 'username' => 'desaintin',
                 'email' => 'desaintin@example.com',
+            'bio' => 'This is the admin user for the PublicForum. Here to manage everything!',
                 'display_name' => 'desaintin',
                 'role' => 'user',
             ],
             [
                 'username' => 'techbabe',
                 'email' => 'techbabe@example.com',
+            'bio' => 'This is the admin user for the PublicForum. Here to manage everything!',
                 'display_name' => 'techbabe',
                 'role' => 'user',
             ],
             [
                 'username' => 'techgurujon',
                 'email' => 'techguru@example.com',
+            'bio' => 'This is the admin user for the PublicForum. Here to manage everything!',
                 'display_name' => 'Tech Guru Jon',
                 'role' => 'user',
             ],
@@ -130,6 +137,7 @@ class PublicForumSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'display_name' => $userData['display_name'],
                 'role' => $userData['role'],
+                'bio' => $userData['bio'],
                 'avatar_url' => $this->faker->imageUrl(150, 150, 'people'),
                 'created_at' => now()->subDays(rand(30, 365)),
             ]);
@@ -145,6 +153,7 @@ class PublicForumSeeder extends Seeder
                 'email' => $this->faker->unique()->safeEmail,
                 'password' => Hash::make('password'),
                 'display_name' => $this->faker->name,
+                'bio' => $this->faker->sentence(rand(5, 15)),
                 'role' => $this->faker->randomElement(['user', 'user', 'user', 'user', 'admin']), // 80% users, 20% admin
                 'avatar_url' => $this->faker->imageUrl(150, 150, 'people'),
                 'created_at' => now()->subDays(rand(1, 365)),

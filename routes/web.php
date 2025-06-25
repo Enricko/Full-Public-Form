@@ -9,6 +9,9 @@ use App\Http\Controllers\AboutController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+Route::put('/profile', [ProfileController::class, 'editProfile'])->name('editProfile');
+
+
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 // Alternative endpoints for infinite scroll (optional)

@@ -14,15 +14,15 @@
                 <div class="profile-banner"></div>
                 <div class="profile-avatar">
                     <div class="profile-avatar-container">
-                        <img src="../assets/images/profile.png" alt="Avatar" id="profileAvatar" />
+                        <img src="{{ asset('storage/' . $user->avatar_url) }}   " alt="Avatar" id="profileAvatar" />
                     </div>
                 </div>
                 <div class="profile-info">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h3 id="profileName">{{ $user->username }}</h3>
-                            <div class="text-muted" id="profileBio">CTO @ PublicForum</div>
-                            <div class="text-muted small">Account created May 2025</div>
+                            <div class="text-muted" id="profileBio">{{ $user->bio }}</div>
+                            <div class="text-muted small">Account created {{ $user->created_at }}</div>
                         </div>
                         <button class="edit-profile-btn" id="editProfileBtn" onclick="profilePage.openEditModal()">
                             <i class="fas fa-edit me-1"></i> Edit Profile
@@ -370,7 +370,7 @@
                     </div>
                 </div>
 
-
+                
                 <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
 
 
@@ -592,7 +592,10 @@
                             </button>
                         </div>
                         <div class="custom-modal-body">
-                            <form id="editProfileForm">
+                            <form id="editProfileForm" action="{{ route('editProfile') }}" enctype="multipart/form-data"
+                                method="post">
+                                @csrf
+                                @method('PUT')
                                 <div class="text-center mb-4">
                                     <label class="form-label">Profile Picture</label>
                                     <div class="position-relative mx-auto" style="width: 120px; height: 120px">
@@ -604,8 +607,8 @@
                     overflow: hidden;
                     border: 3px solid #dc3545;
                   ">
-                                            <img src="../assets/images/post.jpg" alt="Profile Picture" id="previewAvatar"
-                                                style="width: 100%; height: 100%; object-fit: cover" />
+                                            <img src="{{ asset('storage/' . $user->avatar_url) }}" alt="Profile Picture"
+                                                id="previewAvatar" style="width: 100%; height: 100%; object-fit: cover" />
                                         </div>
                                         <div class="position-absolute bottom-0 end-0 bg-danger rounded-circle d-flex justify-content-center align-items-center"
                                             style="
@@ -618,30 +621,33 @@
                                             <i class="fas fa-camera text-white" style="font-size: 16px"></i>
                                         </div>
                                         <input type="file" id="avatarUpload" accept="image/*" style="display: none"
-                                            onchange="profilePage.previewImage(this)" />
+                                            onchange="profilePage.previewImage(this)" name="avatar_url" />
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="displayName" class="form-label">Display Name</label>
-                                    <input type="text" class="form-control" id="displayName" value="Crocodilo" />
+                                    <input type="text" class="form-control" id="displayName"
+                                        value="{{ $user->username }}" name="username" required />
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="bioMe" class="form-label">Bio</label>
-                                    <textarea class="form-control" id="bioMe" rows="4">
-CTO @ PublicForum</textarea>
+                                    <textarea class="form-control" id="bioMe" rows="4"name="bio">
+{{ $user->bio }}</textarea>
+                                </div>
+                                <div class="custom-modal-footer">
+                                    <button type="button" class="btn-secondary mx-1"
+                                        onclick="profilePage.closeEditModal()">
+                                        Cancel
+                                    </button>
+                                    <button type="submit" class="btn-danger mx-1">
+                                        Save Changes
+                                    </button>
                                 </div>
                             </form>
                         </div>
-                        <div class="custom-modal-footer">
-                            <button type="button" class="btn-secondary mx-1" onclick="profilePage.closeEditModal()">
-                                Cancel
-                            </button>
-                            <button type="button" class="btn-danger mx-1" onclick="profilePage.saveProfile()">
-                                Save Changes
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             </div>

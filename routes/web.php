@@ -14,6 +14,7 @@ Route::put('/profile', [ProfileController::class, 'editProfile'])->name('editPro
 
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 
+
 // Alternative endpoints for infinite scroll (optional)
 Route::get('/posts/load-more', [HomeController::class, 'loadMore'])->name('posts.load-more');
 Route::get('/posts/refresh', [HomeController::class, 'refresh'])->name('posts.refresh');

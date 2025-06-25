@@ -79,6 +79,18 @@ class PublicForumSeeder extends Seeder
 
         // Create predefined users
         $predefinedUsers = [
+
+
+            [
+                'username' => 'profileuser',
+                'email' => 'profile@example.com', 
+                'password' => Hash::make('password'),
+                'display_name' => 'Profile Test User',
+                'role' => 'user',
+                'bio' => 'This is the main profile user for testing. Love coding and technology!',
+                'avatar_url' => 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+            ],
+
             [
                 'username' => 'Crocodilo',
                 'email' => 'crocodilo@example.com',

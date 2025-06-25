@@ -1,3 +1,7 @@
+<div class="alert alert-info">
+    <strong>Debug:</strong> Showing profile for User ID: {{ $user->id }} ({{ $user->username }})
+</div>
+
 @extends('index')
 
 @section('title', 'Profile - PublicForum')
@@ -78,506 +82,64 @@
             </ul>
 
 
+            {{-- Replace the tab content section --}}
             <div class="tab-content" id="profileTabsContent">
-
                 <div class="tab-pane fade show active" id="posts" role="tabpanel" aria-labelledby="posts-tab">
-
-                    <div class="social-post" data-post-id="1">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @Crocodilo <span class="post-date">· 3h ago</span>
-                                </div>
-                                <div class="post-meta">CTO @ PublicForum</div>
-                            </div>
-                            <div class="post-options">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            Just finished the backend implementation for our new messaging
-                            feature. Excited to see this go live next week! #WebDevelopment
-                            #Coding
-                        </div>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn">
-                                <i class="far fa-heart"></i> <span>87</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>12</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>5</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <div class="social-post" data-post-id="2">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @Crocodilo <span class="post-date">· Yesterday</span>
-                                </div>
-                                <div class="post-meta">CTO @ PublicForum</div>
-                            </div>
-                            <div class="post-options">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            Our new office setup is ready! 🚀 #WorkspaceGoals
-                        </div>
-                        <div class="post-media single-image">
-                            <img src="../assets/images/post.jpg" alt="Office setup" class="post-image" />
-                        </div>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn">
-                                <i class="far fa-heart"></i> <span>132</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>28</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>14</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <div class="social-post" data-post-id="3">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @Crocodilo <span class="post-date">· 2 days ago</span>
-                                </div>
-                                <div class="post-meta">CTO @ PublicForum</div>
-                            </div>
-                            <div class="post-options">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </div>
-                        </div>
-
-                        <div class="post-content">
-                            Check out this quick demo of our new feature! 👇
-                        </div>
-
-
-                        <div class="post-media video-container">
-                            <video id="demo-video" controls class="video-element">
-                                <source src="../assets/video/post.mp4" type="video/mp4" />
-                                Your browser does not support the video tag.
-                            </video>
-                            <div class="video-placeholder" onclick="playVideo('demo-video')">
-
-                                <div class="video-thumbnail-wrapper">
-                                    <video class="video-thumbnail-source" muted>
-                                        <source src="../assets/video/post.mp4" type="video/mp4" />
-                                    </video>
-                                    <div class="play-button">
-                                        <i class="fas fa-play"></i>
-                                    </div>
-                                    <div class="video-duration">2:45</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="post-actions">
-                            <button class="action-btn like-btn">
-                                <i class="far fa-heart"></i> <span>202</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>37</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>18</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <div class="social-post" data-post-id="4">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @Crocodilo <span class="post-date">· 3 days ago</span>
-                                </div>
-                                <div class="post-meta">CTO @ PublicForum</div>
-                            </div>
-                            <div class="post-options">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            Highlights from our team building event this weekend! 🎉 #TeamSpirit
-                        </div>
-                        <div class="post-media image-grid">
-                            <div class="grid-row">
-                                <div class="grid-item">
-                                    <img src="../assets/images/post.jpg" alt="Team photo 1" class="grid-image" />
-                                </div>
-                                <div class="grid-item">
-                                    <img src="../assets/images/post2.jpg" alt="Team photo 2" class="grid-image" />
-                                </div>
-                            </div>
-                            <div class="grid-row">
-                                <div class="grid-item">
-                                    <img src="../assets/images/post2.jpg" alt="Team photo 3" class="grid-image" />
-                                </div>
-                                <div class="grid-item more-images">
-                                    <img src="../assets/images/post.jpg" alt="Team photo 4" class="grid-image" />
-                                    <div class="image-count">+3</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn">
-                                <i class="far fa-heart"></i> <span>176</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>42</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>8</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <div class="social-post" data-post-id="5">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @Crocodilo <span class="post-date">· 4 days ago</span>
-                                </div>
-                                <div class="post-meta">CTO @ PublicForum</div>
-                            </div>
-                            <div class="post-options">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </div>
-                        </div>
-                        <div class="post-media single-image">
-                            <img src="../assets/images/post.jpg" alt="Scenic view" class="post-image" />
-                        </div>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn">
-                                <i class="far fa-heart"></i> <span>254</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>31</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>22</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <div class="social-post" data-post-id="6">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @Crocodilo <span class="post-date">· 1 week ago</span>
-                                </div>
-                                <div class="post-meta">CTO @ PublicForum</div>
-                            </div>
-                            <div class="post-options">
-                                <i class="fas fa-ellipsis-h"></i>
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            This is absolutely revolutionary for web development! 👇
-                        </div>
-                        <div class="reposted-content">
-                            <div class="repost-header">
-                                <i class="fas fa-retweet"></i> Reposted from
-                                <span class="repost-author">@webdev_news</span>
-                            </div>
-                            <div class="repost-post">
+                    @if ($posts->count() > 0)
+                        @foreach ($posts as $post)
+                            <div class="social-post" data-post-id="{{ $post->id }}">
                                 <div class="post-header">
-                                    <img src="../assets/images/profile.png" alt="Original poster" class="post-avatar" />
+                                    <img src="{{ $post->user->avatar_url ? asset('storage/' . $post->user->avatar_url) : asset('assets/images/profile.png') }}"
+                                        alt="Profile" class="post-avatar" />
                                     <div class="post-info">
                                         <div class="post-author">
-                                            @webdev_news <span class="post-date">· 1 week ago</span>
+                                            {{ $post->user->username }}
+                                            <span class="post-date">· {{ $post->created_at->diffForHumans() }}</span>
                                         </div>
-                                        <div class="post-meta">Web Development News</div>
+                                        <div class="post-meta">{{ $post->user->display_name ?? 'User' }}</div>
                                     </div>
                                 </div>
-                                <div class="post-content">
-                                    Breaking: New JavaScript framework announced that promises 10x
-                                    faster rendering speeds and 50% smaller bundle sizes. This could
-                                    change everything about how we build web apps. #WebDev #JavaScript
+
+                                @if ($post->content)
+                                    <div class="post-content">
+                                        {{ $post->content }}
+                                    </div>
+                                @endif
+
+                                <div class="post-actions">
+                                    <button class="action-btn like-btn {{ $post->is_liked ? 'liked' : '' }}"
+                                        data-post-id="{{ $post->id }}">
+                                        <i class="{{ $post->is_liked ? 'fas' : 'far' }} fa-heart"></i>
+                                        <span>{{ $post->like_count ?? 0 }}</span>
+                                    </button>
+                                    <button class="action-btn comment-btn" data-post-id="{{ $post->id }}">
+                                        <i class="far fa-comment"></i>
+                                        <span>{{ $post->comment_count ?? 0 }}</span>
+                                    </button>
+                                    <button class="action-btn save-btn {{ $post->is_saved ? 'saved' : '' }}"
+                                        data-post-id="{{ $post->id }}">
+                                        <i class="{{ $post->is_saved ? 'fas' : 'far' }} fa-bookmark"></i>
+                                    </button>
                                 </div>
-                                <div class="post-media single-image">
-                                    <img src="../assets/images/post.jpg" alt="Framework announcement"
-                                        class="post-image" />
-                                </div>
                             </div>
+                        @endforeach
+                    @else
+                        <div class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No {{ $tab ?? 'posts' }} yet</h5>
+                            <p class="text-muted">
+                                @if (($tab ?? 'posts') === 'posts')
+                                    Create your first post to see it here!
+                                @elseif($tab === 'likes')
+                                    Posts you like will appear here.
+                                @elseif($tab === 'saved')
+                                    Posts you save will appear here.
+                                @elseif($tab === 'comments')
+                                    Posts you've commented on will appear here.
+                                @endif
+                            </p>
                         </div>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn">
-                                <i class="far fa-heart"></i> <span>321</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>64</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>143</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                
-                <div class="tab-pane fade" id="comments" role="tabpanel" aria-labelledby="comments-tab">
-
-
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <div>You commented on <a href="#" class="user-link">@ai_master's post</a> · <span
-                                    class="comment-date">2 days ago</span></div>
-                        </div>
-
-                        <div class="original-post-preview">
-                            <div class="user-info">
-                                <span class="username">@ai_master</span> · <span class="post-date">Hari ini</span>
-                            </div>
-                            <div class="post-content">
-                                Lihat robot ini menari sambil ngoding JavaScript 🤯
-                            </div>
-                            <div class="post-image-container">
-                                <img src="../assets/images/post2.jpg" alt="Robot dancing while coding"
-                                    class="post-preview-image">
-                            </div>
-                        </div>
-
-                        <div class="comment-content">
-                            This is absolutely incredible! The coordination required to dance while coding is next level AI.
-                        </div>
-
-                        <div class="comment-actions">
-                            <button class="action-btn like-btn"><span class="heart-icon">❤</span> <span>42</span></button>
-                            <button class="action-btn reply-btn"><i class="far fa-comment"></i> Reply</button>
-                        </div>
-                    </div>
-
-
-                    <div class="comment-item">
-                        <div class="comment-header">
-                            <div>You commented on <a href="#" class="user-link">@tech_daily's post</a> · <span
-                                    class="comment-date">1 week ago</span></div>
-                        </div>
-
-                        <div class="original-post-preview">
-                            <div class="user-info">
-                                <span class="username">@tech_daily</span> · <span class="post-date">11 Mei</span>
-                            </div>
-                            <div class="post-content">
-                                What's your prediction for the most important programming language in 2026?
-                            </div>
-                        </div>
-
-                        <div class="comment-content">
-                            Python will continue to dominate due to its versatility in AI, data science, and web
-                            development. However, I think Rust will see the
-                            biggest
-                            growth as more companies prioritize performance and safety.
-                        </div>
-
-                        <div class="comment-actions">
-                            <button class="action-btn like-btn"><span class="heart-icon">❤</span>
-                                <span>156</span></button>
-                            <button class="action-btn reply-btn"><i class="far fa-comment"></i> Reply</button>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="tab-pane fade" id="likes" role="tabpanel" aria-labelledby="likes-tab">
-
-                    <div class="social-post" data-post-id="7">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @elonmusk <span class="post-date">· 13 Mei</span>
-                                </div>
-                                <div class="post-meta">CEO of multiple companies</div>
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            Robot humanoid mulai latihan angkat barbel. 🏋️
-                        </div>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn active">
-                                <i class="far fa-heart"></i> <span>254</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>31</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>22</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <div class="social-post" data-post-id="8">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @ai_master <span class="post-date">· Hari ini</span>
-                                </div>
-                                <div class="post-meta">AI Researcher</div>
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            Lihat robot ini menari sambil ngoding JavaScript 🤯
-                        </div>
-                        <div class="post-image">
-                            <img src="../assets/images/post2.jpg" alt="Robot dancing" class="post-media" />
-                        </div>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn active">
-                                <i class="far fa-heart"></i> <span>254</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>31</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>22</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="tab-pane fade" id="saved" role="tabpanel" aria-labelledby="saved-tab">
-
-
-                    <div class="social-post" data-post-id="9">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @techcrunch <span class="post-date">· 9 Mei</span>
-                                </div>
-                                <div class="post-meta">Tech News Network</div>
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            Breaking: The next generation of GPUs announced today with 2x
-                            performance at half the power consumption.
-                        </div>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn active">
-                                <i class="far fa-heart"></i> <span>254</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>31</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>22</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn active">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-
-                    <div class="social-post" data-post-id="10">
-                        <div class="post-header">
-                            <img src="../assets/images/profile.png" alt="Profile" class="post-avatar" />
-                            <div class="post-info">
-                                <div class="post-author">
-                                    @ai_master <span class="post-date">· Hari ini</span>
-                                </div>
-                                <div class="post-meta">AI Researcher</div>
-                            </div>
-                        </div>
-                        <div class="post-content">
-                            Lihat robot ini menari sambil ngoding JavaScript 🤯
-                        </div>
-                        <div class="post-image">
-                            <img src="../assets/images/post2.jpg" alt="Robot dancing" class="post-media" />
-                        </div>
-                        <div class="post-actions">
-                            <button class="action-btn like-btn active">
-                                <i class="far fa-heart"></i> <span>254</span>
-                            </button>
-                            <button class="action-btn comment-btn">
-                                <i class="far fa-comment"></i> <span>31</span>
-                            </button>
-                            <button class="action-btn repost-btn">
-                                <i class="fas fa-retweet"></i> <span>22</span>
-                            </button>
-                            <button class="action-btn share-btn">
-                                <i class="far fa-share-square"></i>
-                            </button>
-                            <button class="action-btn save-btn active">
-                                <i class="far fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </div>
+                    @endif
                 </div>
             </div>
 

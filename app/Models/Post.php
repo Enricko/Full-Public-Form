@@ -85,4 +85,24 @@ class Post extends Model
         if (!$user) return false;
         return $this->savedByUsers()->where('user_id', $user->id)->exists();
     }
+
+    // Get hashtags as a formatted string
+    public function getHashtagsString()
+    {
+        return $this->hashtags->pluck('name')->map(function($tag) {
+            return '#' . $tag;
+        })->implode(' ');
+    }
+
+    // Get image attachments only
+    public function getImageAttachments()
+    {
+        return $this->attachments()->where('file_type', 'like', 'image/%')->get();
+    }
+
+    // Get video attachments only
+    public function getVideoAttachments()
+    {
+        return $this->attachments()->where('file_type', 'like', 'video/%')->get();
+    }
 }

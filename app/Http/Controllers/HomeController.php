@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
+    private $dummyUserId = 6; // Dummy user ID for testing
+
     public function index(Request $request)
     {
         // Debug logging
@@ -33,18 +35,20 @@ class HomeController extends Controller
 
         // Add additional data for each post
         $posts->getCollection()->transform(function ($post) {
-            // Add interaction status for authenticated users
-            if (Auth::check()) {
-                $post->is_liked = $post->isLikedBy(Auth::user());
-                $post->is_saved = $post->isSavedBy(Auth::user());
+            // Add interaction status for authenticated users or dummy user
+            $currentUser = Auth::user() ?? User::find($this->dummyUserId);
+            
+            if ($currentUser) {
+                $post->is_liked = $post->isLikedBy($currentUser);
+                $post->is_saved = $post->isSavedBy($currentUser);
             } else {
                 $post->is_liked = false;
                 $post->is_saved = false;
             }
 
-            // Add share count if not already loaded
+            // Ensure share_count is available
             if (!isset($post->share_count)) {
-                $post->share_count = $post->shares()->count();
+                $post->share_count = $post->share_count ?? 0;
             }
 
             return $post;
@@ -67,6 +71,7 @@ class HomeController extends Controller
                     'to' => $posts->lastItem()
                 ]);
             } catch (\Exception $e) {
+                Log::error('Error loading posts: ' . $e->getMessage());
                 return response()->json([
                     'success' => false,
                     'message' => 'Failed to load posts. Please try again.',
@@ -97,10 +102,11 @@ class HomeController extends Controller
      */
     private function getSuggestedUsers()
     {
-        $cacheKey = 'suggested_users_' . (Auth::id() ?? 'guest');
+        $userId = Auth::id() ?? $this->dummyUserId;
+        $cacheKey = 'suggested_users_' . $userId;
 
-        return Cache::remember($cacheKey, 600, function () { // Cache for 10 minutes
-            return User::where('id', '!=', Auth::id() ?? 0)
+        return Cache::remember($cacheKey, 600, function () use ($userId) { // Cache for 10 minutes
+            return User::where('id', '!=', $userId)
                 ->withCount('posts')
                 ->has('posts', '>=', 1) // Only suggest users who have posted
                 ->inRandomOrder()
@@ -128,9 +134,9 @@ class HomeController extends Controller
     {
         // Clear relevant caches
         Cache::forget('trending_hashtags');
-        if (Auth::check()) {
-            Cache::forget('suggested_users_' . Auth::id());
-        }
+        
+        $userId = Auth::id() ?? $this->dummyUserId;
+        Cache::forget('suggested_users_' . $userId);
 
         // Get fresh posts
         $posts = Post::with([
@@ -143,6 +149,26 @@ class HomeController extends Controller
             ->withCount(['likes', 'comments'])
             ->latest()
             ->paginate(10);
+
+        // Add interaction status for each post
+        $posts->getCollection()->transform(function ($post) {
+            $currentUser = Auth::user() ?? User::find($this->dummyUserId);
+            
+            if ($currentUser) {
+                $post->is_liked = $post->isLikedBy($currentUser);
+                $post->is_saved = $post->isSavedBy($currentUser);
+            } else {
+                $post->is_liked = false;
+                $post->is_saved = false;
+            }
+
+            // Ensure share_count is available
+            if (!isset($post->share_count)) {
+                $post->share_count = $post->share_count ?? 0;
+            }
+
+            return $post;
+        });
 
         if ($request->ajax()) {
             $html = view('components.post-list', compact('posts'))->render();

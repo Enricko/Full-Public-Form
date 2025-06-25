@@ -22,7 +22,7 @@
 
     <script>
         // Immediate scroll reset - runs before any other scripts
-        (function() {
+        (function () {
             // Disable browser scroll restoration
             if ('scrollRestoration' in history) {
                 history.scrollRestoration = 'manual';
@@ -43,8 +43,8 @@
             }
 
             // Remove loading class after page loads
-            window.addEventListener('load', function() {
-                setTimeout(function() {
+            window.addEventListener('load', function () {
+                setTimeout(function () {
                     if (document.documentElement) {
                         document.documentElement.classList.remove('loading');
                         document.documentElement.classList.add('page-loaded');
@@ -67,8 +67,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarContent">
                 <form class="d-flex ms-auto" id="navbar-search-form">
-                    <input class="form-control me-2" type="search" id="navbar-search-input" placeholder="Search..."
-                        aria-label="Search" />
+                    <input class="form-control me-2" type="search" id="navbar-search-input" placeholder="Search..." aria-label="Search" />
                     <button class="btn btn-light" type="submit">Search</button>
                 </form>
                 <button class="btn btn-outline-light ms-3" type="button" onclick="showLoginModal()">Login</button>
@@ -82,21 +81,17 @@
             <div class="col-md-2">
                 <div class="sidebar">
 
-                    <button class="post-button" onclick="loadPage('tambah')">
+                    <a class="post-button" href="{{ route('tambah') }}">
                         <i class="fas fa-edit"></i> Posting Baru
-                    </button>
+                    </a>
                     <ul class="nav flex-column">
-                        <li class="nav-item"><a class="nav-link" href="{{ route('home') }}" >🏠
+                        <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">🏠
                                 Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('profile') }}">👤 Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)"
-                                onclick="loadPage('search')">🔍 Search</a></li>
-                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)"
-                                onclick="loadPage('settings')">⚙️ Settings</a></li>
-                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)"
-                                onclick="loadPage('comment')">⚙️ Comment</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ route('about') }}"
-                                onclick="loadPage('about')">ℹ️ About Us</a></li>
+                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="loadPage('search')">🔍 Search</a></li>
+                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="loadPage('settings')">⚙️ Settings</a></li>
+                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="loadPage('comment')">⚙️ Comment</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('about') }}" onclick="loadPage('about')">ℹ️ About Us</a></li>
                     </ul>
                 </div>
             </div>
@@ -208,8 +203,7 @@
 
                         <div class="user">
                             <div class="user-avatar">
-                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle"
-                                    width="40" height="40" />
+                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle" width="40" height="40" />
                             </div>
                             <div class="user-info-container">
                                 <span class="user-name">@JavaScriptMaster</span>
@@ -222,8 +216,7 @@
 
                         <div class="user">
                             <div class="user-avatar">
-                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle"
-                                    width="40" height="40" />
+                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle" width="40" height="40" />
                             </div>
                             <div class="user-info-container">
                                 <span class="user-name">@desainin</span>
@@ -237,8 +230,7 @@
 
                         <div class="user">
                             <div class="user-avatar">
-                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle"
-                                    width="40" height="40" />
+                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle" width="40" height="40" />
                             </div>
                             <div class="user-info-container">
                                 <span class="user-name">@techbabe</span>
@@ -252,8 +244,7 @@
 
                         <div class="user">
                             <div class="user-avatar">
-                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle"
-                                    width="40" height="40" />
+                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle" width="40" height="40" />
                             </div>
                             <div class="user-info-container">
                                 <span class="user-name">@aibot</span>
@@ -280,6 +271,15 @@
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script src="{{ asset('assets/js/scripts.js') }}"></script>
     <script src="{{ asset('assets/js/content.js') }}"></script>
+    <script src="{{ asset('assets/js/post-interactions.js') }}"></script>
+    <script>
+        // Global configuration
+        window.AppConfig = {
+            csrfToken: document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            baseUrl: '{{ url('/') }}',
+            debug: {{ config('app.debug') ? 'true' : 'false' }}
+        };
+    </script>
 </body>
 
 </html>

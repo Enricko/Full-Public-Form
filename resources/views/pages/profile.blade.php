@@ -1,24 +1,22 @@
-<div class="alert alert-info">
-    <strong>Debug:</strong> Showing profile for User ID: {{ $user->id }} ({{ $user->username }})
-</div>
-
 @extends('index')
 
 @section('title', 'Profile - PublicForum')
 
+@push('scripts')
+    <script src="{{ asset('assets/js/video-player.js') }}"></script>
+    <script src="{{ asset('assets/js/post-interactions.js') }}"></script>
+@endpush
+
 @section('content')
     <div class="container">
-        <div class="notification-area" id="notificationArea">
-
-        </div>
+        <div class="notification-area" id="notificationArea"></div>
 
         <div class="profile-container">
-
             <div class="profile-header">
                 <div class="profile-banner"></div>
                 <div class="profile-avatar">
                     <div class="profile-avatar-container">
-                        <img src="{{ asset('storage/' . $user->avatar_url) }}   " alt="Avatar" id="profileAvatar" />
+                        <img src="{{ $user->avatar_url ? asset('storage/' . $user->avatar_url) : asset('assets/images/profile.png') }}" alt="Avatar" id="profileAvatar" />
                     </div>
                 </div>
                 <div class="profile-info">
@@ -26,7 +24,7 @@
                         <div>
                             <h3 id="profileName">{{ $user->username }}</h3>
                             <div class="text-muted" id="profileBio">{{ $user->bio }}</div>
-                            <div class="text-muted small">Account created {{ $user->created_at }}</div>
+                            <div class="text-muted small">Account created {{ $user->created_at->format('M Y') }}</div>
                         </div>
                         <button class="edit-profile-btn" id="editProfileBtn" onclick="profilePage.openEditModal()">
                             <i class="fas fa-edit me-1"></i> Edit Profile
@@ -38,112 +36,94 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div>Posts</div>
-                                <div class="fw-bold">127</div>
+                                <div class="fw-bold">{{ number_format($stats['posts_count']) }}</div>
                             </div>
                             <div class="col-md-4">
                                 <div>Comments</div>
-                                <div class="fw-bold">943</div>
+                                <div class="fw-bold">{{ number_format($stats['comments_count']) }}</div>
                             </div>
                             <div class="col-md-4">
-                                <div>Followers</div>
-                                <div class="fw-bold">316</div>
+                                <div>Likes</div>
+                                <div class="fw-bold">{{ number_format($stats['likes_count']) }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-
             <ul class="nav nav-tabs" id="profileTabs" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="posts-tab" onclick="profilePage.switchTab('posts')" type="button"
-                        role="tab">
+                    <button class="nav-link {{ ($tab ?? 'posts') === 'posts' ? 'active' : '' }}" id="posts-tab" onclick="profilePage.switchTab('posts')" type="button" role="tab">
                         Posts
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="comments-tab" onclick="profilePage.switchTab('comments')" type="button"
-                        role="tab">
+                    <button class="nav-link {{ $tab === 'comments' ? 'active' : '' }}" id="comments-tab" onclick="profilePage.switchTab('comments')" type="button" role="tab">
                         Comments
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="likes-tab" onclick="profilePage.switchTab('likes')" type="button"
-                        role="tab">
+                    <button class="nav-link {{ $tab === 'likes' ? 'active' : '' }}" id="likes-tab" onclick="profilePage.switchTab('likes')" type="button" role="tab">
                         Likes
                     </button>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="saved-tab" onclick="profilePage.switchTab('saved')" type="button"
-                        role="tab">
+                    <button class="nav-link {{ $tab === 'saved' ? 'active' : '' }}" id="saved-tab" onclick="profilePage.switchTab('saved')" type="button" role="tab">
                         Saved
                     </button>
                 </li>
             </ul>
 
-
-            {{-- Replace the tab content section --}}
             <div class="tab-content" id="profileTabsContent">
                 <div class="tab-pane fade show active" id="posts" role="tabpanel" aria-labelledby="posts-tab">
-                    @if ($posts->count() > 0)
-                        @foreach ($posts as $post)
-                            <div class="social-post" data-post-id="{{ $post->id }}">
-                                <div class="post-header">
-                                    <img src="{{ $post->user->avatar_url ? asset('storage/' . $post->user->avatar_url) : asset('assets/images/profile.png') }}"
-                                        alt="Profile" class="post-avatar" />
-                                    <div class="post-info">
-                                        <div class="post-author">
-                                            {{ $post->user->username }}
-                                            <span class="post-date">· {{ $post->created_at->diffForHumans() }}</span>
-                                        </div>
-                                        <div class="post-meta">{{ $post->user->display_name ?? 'User' }}</div>
-                                    </div>
-                                </div>
-
-                                @if ($post->content)
-                                    <div class="post-content">
-                                        {{ $post->content }}
-                                    </div>
-                                @endif
-
-                                <div class="post-actions">
-                                    <button class="action-btn like-btn {{ $post->is_liked ? 'liked' : '' }}"
-                                        data-post-id="{{ $post->id }}">
-                                        <i class="{{ $post->is_liked ? 'fas' : 'far' }} fa-heart"></i>
-                                        <span>{{ $post->like_count ?? 0 }}</span>
-                                    </button>
-                                    <button class="action-btn comment-btn" data-post-id="{{ $post->id }}">
-                                        <i class="far fa-comment"></i>
-                                        <span>{{ $post->comment_count ?? 0 }}</span>
-                                    </button>
-                                    <button class="action-btn save-btn {{ $post->is_saved ? 'saved' : '' }}"
-                                        data-post-id="{{ $post->id }}">
-                                        <i class="{{ $post->is_saved ? 'fas' : 'far' }} fa-bookmark"></i>
-                                    </button>
-                                </div>
+                    @if(($tab ?? 'posts') === 'comments')
+                        @if(isset($comments) && $comments->count() > 0)
+                            @include('components.comments-list', ['comments' => $comments])
+                        @else
+                            <div class="text-center py-5">
+                                <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No comments yet</h5>
+                                <p class="text-muted">Posts you've commented on will appear here.</p>
                             </div>
-                        @endforeach
+                        @endif
                     @else
-                        <div class="text-center py-5">
-                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">No {{ $tab ?? 'posts' }} yet</h5>
-                            <p class="text-muted">
-                                @if (($tab ?? 'posts') === 'posts')
-                                    Create your first post to see it here!
-                                @elseif($tab === 'likes')
-                                    Posts you like will appear here.
-                                @elseif($tab === 'saved')
-                                    Posts you save will appear here.
-                                @elseif($tab === 'comments')
-                                    Posts you've commented on will appear here.
-                                @endif
-                            </p>
-                        </div>
+                        @if ($posts->count() > 0)
+                            @include('components.post-list', ['posts' => $posts])
+                        @else
+                            <div class="text-center py-5">
+                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No {{ $tab ?? 'posts' }} yet</h5>
+                                <p class="text-muted">
+                                    @if (($tab ?? 'posts') === 'posts')
+                                        Create your first post to see it here!
+                                    @elseif($tab === 'likes')
+                                        Posts you like will appear here.
+                                    @elseif($tab === 'saved')
+                                        Posts you save will appear here.
+                                    @endif
+                                </p>
+                            </div>
+                        @endif
                     @endif
                 </div>
             </div>
 
+            <div id="loading-indicator" class="text-center py-4" style="display: none;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading more posts...</p>
+            </div>
 
+            <div id="end-of-posts" class="text-center py-4" style="display: none;">
+                <div class="text-muted">
+                    <i class="fas fa-check-circle fa-2x mb-2 text-success"></i>
+                    <h5>All caught up! 🎉</h5>
+                    <p class="mb-3">No more {{ $tab ?? 'posts' }} to show.</p>
+                </div>
+            </div>
+
+            <!-- Edit Profile Modal -->
             <div class="custom-modal" id="customEditModal">
                 <div class="custom-modal-dialog">
                     <div class="custom-modal-content">
@@ -154,53 +134,34 @@
                             </button>
                         </div>
                         <div class="custom-modal-body">
-                            <form id="editProfileForm" action="{{ route('editProfile') }}" enctype="multipart/form-data"
-                                method="post">
+                            <form id="editProfileForm" action="{{ route('editProfile') }}" enctype="multipart/form-data" method="post">
                                 @csrf
                                 @method('PUT')
                                 <div class="text-center mb-4">
                                     <label class="form-label">Profile Picture</label>
                                     <div class="position-relative mx-auto" style="width: 120px; height: 120px">
-                                        <div
-                                            style="
-                    width: 120px;
-                    height: 120px;
-                    border-radius: 50%;
-                    overflow: hidden;
-                    border: 3px solid #dc3545;
-                  ">
-                                            <img src="{{ asset('storage/' . $user->avatar_url) }}" alt="Profile Picture"
-                                                id="previewAvatar" style="width: 100%; height: 100%; object-fit: cover" />
+                                        <div style="width: 120px; height: 120px; border-radius: 50%; overflow: hidden; border: 3px solid #dc3545;">
+                                            <img src="{{ $user->avatar_url ? asset('storage/' . $user->avatar_url) : asset('assets/images/profile.png') }}" alt="Profile Picture" id="previewAvatar" style="width: 100%; height: 100%; object-fit: cover" />
                                         </div>
-                                        <div class="position-absolute bottom-0 end-0 bg-danger rounded-circle d-flex justify-content-center align-items-center"
-                                            style="
-                    width: 36px;
-                    height: 36px;
-                    cursor: pointer;
-                    border: 2px solid #fff;
-                  "
+                                        <div class="position-absolute bottom-0 end-0 bg-danger rounded-circle d-flex justify-content-center align-items-center" style="width: 36px; height: 36px; cursor: pointer; border: 2px solid #fff;"
                                             onclick="document.getElementById('avatarUpload').click()">
                                             <i class="fas fa-camera text-white" style="font-size: 16px"></i>
                                         </div>
-                                        <input type="file" id="avatarUpload" accept="image/*" style="display: none"
-                                            onchange="profilePage.previewImage(this)" name="avatar_url" />
+                                        <input type="file" id="avatarUpload" accept="image/*" style="display: none" onchange="profilePage.previewImage(this)" name="avatar_url" />
                                     </div>
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="displayName" class="form-label">Display Name</label>
-                                    <input type="text" class="form-control" id="displayName"
-                                        value="{{ $user->username }}" name="username" required />
+                                    <input type="text" class="form-control" id="displayName" value="{{ $user->username }}" name="username" required />
                                 </div>
 
                                 <div class="mb-3">
                                     <label for="bioMe" class="form-label">Bio</label>
-                                    <textarea class="form-control" id="bioMe" rows="4"name="bio">
-{{ $user->bio }}</textarea>
+                                    <textarea class="form-control" id="bioMe" rows="4" name="bio">{{ $user->bio }}</textarea>
                                 </div>
                                 <div class="custom-modal-footer">
-                                    <button type="button" class="btn-secondary mx-1"
-                                        onclick="profilePage.closeEditModal()">
+                                    <button type="button" class="btn-secondary mx-1" onclick="profilePage.closeEditModal()">
                                         Cancel
                                     </button>
                                     <button type="submit" class="btn-danger mx-1">
@@ -209,312 +170,402 @@
                                 </div>
                             </form>
                         </div>
-
                     </div>
                 </div>
             </div>
 
+            <!-- Profile Page JavaScript -->
             <script>
-                // Video player functions
-                function playVideo(videoId) {
-                    const video = document.getElementById(videoId);
-                    const placeholder = video.parentNode.querySelector(".video-placeholder");
-
-                    if (video && placeholder) {
-                        video.style.display = "block";
-                        placeholder.style.display = "none";
-                        video.play();
-                    }
-                }
+                // Set current tab for JavaScript
+                window.currentTab = '{{ $tab ?? "posts" }}';
 
                 // Create a global object to hold all profile page functions
                 window.profilePage = {
+                    currentTab: '{{ $tab ?? "posts" }}',
+                    isLoading: false,
+
                     // Function to open the edit modal
-                    openEditModal: function() {
+                    openEditModal: function () {
                         console.log("Opening edit modal");
                         document.getElementById("customEditModal").style.display = "block";
                     },
 
                     // Function to close the edit modal
-                    closeEditModal: function() {
+                    closeEditModal: function () {
                         console.log("Closing edit modal");
                         document.getElementById("customEditModal").style.display = "none";
                     },
 
-                    // Function to switch tabs
-                    switchTab: function(tabId) {
-                        console.log("Switching to tab:", tabId);
+                    // Function to switch tabs with AJAX
+                    switchTab: function (tabId) {
+                        if (this.isLoading || this.currentTab === tabId) return;
 
-                        // Remove active class from all tab buttons
-                        var tabButtons = document.querySelectorAll(".nav-tabs .nav-link");
-                        tabButtons.forEach(function(button) {
+                        console.log("Switching to tab:", tabId);
+                        this.isLoading = true;
+                        this.currentTab = tabId;
+
+                        // Update tab UI
+                        document.querySelectorAll(".nav-tabs .nav-link").forEach(function (button) {
                             button.classList.remove("active");
                         });
-
-                        // Add active class to the clicked tab button
                         document.getElementById(tabId + "-tab").classList.add("active");
 
-                        // Hide all tab panes
-                        var tabPanes = document.querySelectorAll(".tab-pane");
-                        tabPanes.forEach(function(pane) {
-                            pane.classList.remove("show");
-                            pane.classList.remove("active");
-                        });
+                        // Show loading state
+                        const postsContainer = document.querySelector('#posts');
+                        if (postsContainer) {
+                            postsContainer.innerHTML = `
+                                        <div class="text-center py-5">
+                                            <div class="spinner-border text-primary" role="status">
+                                                <span class="visually-hidden">Loading...</span>
+                                            </div>
+                                            <p class="mt-2 text-muted">Loading ${tabId}...</p>
+                                        </div>
+                                    `;
+                        }
 
-                        // Show the selected tab pane
-                        var selectedPane = document.getElementById(tabId);
-                        selectedPane.classList.add("fade");
-                        selectedPane.classList.add("show");
-                        selectedPane.classList.add("active");
+                        // Make AJAX call to switch tab
+                        fetch('/profile/switch-tab', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: JSON.stringify({ tab: tabId })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Tab response:', data);
+                                if (data.success && postsContainer) {
+                                    postsContainer.innerHTML = data.posts;
+                                    this.setupPostInteractions();
+                                } else {
+                                    console.error('Failed to load tab content');
+                                    postsContainer.innerHTML = `
+                                                <div class="text-center py-5">
+                                                    <div class="text-danger">
+                                                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                                                        <h5>Failed to load content</h5>
+                                                        <p>Please try again.</p>
+                                                    </div>
+                                                </div>
+                                            `;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error switching tab:', error);
+                                if (postsContainer) {
+                                    postsContainer.innerHTML = `
+                                                <div class="text-center py-5">
+                                                    <div class="text-danger">
+                                                        <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                                                        <h5>Error loading content</h5>
+                                                        <p>Please check your connection and try again.</p>
+                                                    </div>
+                                                </div>
+                                            `;
+                                }
+                            })
+                            .finally(() => {
+                                this.isLoading = false;
+                            });
+                    },
 
-                        // After switching tabs, make posts clickable again
-                        if (typeof window.makePostsClickable === 'function') {
-                            setTimeout(function() {
-                                window.makePostsClickable();
-                            }, 100);
+                    // Set up post interactions (use global PostInteractions if available)
+                    setupPostInteractions: function () {
+                        console.log('Setting up post interactions');
+
+                        if (window.PostInteractions) {
+                            // Use the global post interactions
+                            PostInteractions.reinitialize();
+                        } else {
+                            // Fallback to local handlers
+                            this.setupLocalInteractions();
                         }
                     },
 
+                    // Local interaction handlers (fallback)
+                    setupLocalInteractions: function () {
+                        // Like buttons
+                        document.querySelectorAll('.like-btn').forEach(button => {
+                            if (!button.dataset.handlerSet) {
+                                button.dataset.handlerSet = 'true';
+                                button.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    this.handleLikeClick(button);
+                                });
+                            }
+                        });
+
+                        // Save buttons
+                        document.querySelectorAll('.save-btn').forEach(button => {
+                            if (!button.dataset.handlerSet) {
+                                button.dataset.handlerSet = 'true';
+                                button.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    this.handleSaveClick(button);
+                                });
+                            }
+                        });
+
+                        // Share buttons
+                        document.querySelectorAll('.share-btn').forEach(button => {
+                            if (!button.dataset.handlerSet) {
+                                button.dataset.handlerSet = 'true';
+                                button.addEventListener('click', (e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    this.handleShareClick(button);
+                                });
+                            }
+                        });
+                    },
+
+                    // Handle like button clicks
+                    handleLikeClick: function (button) {
+                        const postId = button.dataset.postId;
+                        const icon = button.querySelector('i');
+                        const countSpan = button.querySelector('span');
+                        const currentCount = parseInt(countSpan.textContent) || 0;
+                        const isLiked = button.classList.contains('active');
+
+                        // Optimistic update
+                        if (isLiked) {
+                            button.classList.remove('active');
+                            button.style.color = '';
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                            countSpan.textContent = currentCount - 1;
+                        } else {
+                            button.classList.add('active');
+                            button.style.color = '#fa2c8b';
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                            countSpan.textContent = currentCount + 1;
+                        }
+
+                        // Send to server
+                        fetch(`/posts/${postId}/like`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Like response:', data);
+                                if (data.success) {
+                                    countSpan.textContent = data.like_count;
+                                    if (data.liked) {
+                                        button.classList.add('active');
+                                        button.style.color = '#fa2c8b';
+                                        icon.classList.remove('far');
+                                        icon.classList.add('fas');
+                                    } else {
+                                        button.classList.remove('active');
+                                        button.style.color = '';
+                                        icon.classList.remove('fas');
+                                        icon.classList.add('far');
+                                    }
+                                    this.showNotification(data.message, 'success');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error toggling like:', error);
+                                // Revert on error
+                                if (!isLiked) {
+                                    button.classList.remove('active');
+                                    button.style.color = '';
+                                    icon.classList.remove('fas');
+                                    icon.classList.add('far');
+                                    countSpan.textContent = currentCount;
+                                } else {
+                                    button.classList.add('active');
+                                    button.style.color = '#fa2c8b';
+                                    icon.classList.remove('far');
+                                    icon.classList.add('fas');
+                                    countSpan.textContent = currentCount;
+                                }
+                            });
+                    },
+
+                    // Handle save button clicks
+                    handleSaveClick: function (button) {
+                        const postId = button.dataset.postId;
+                        const icon = button.querySelector('i');
+                        const isSaved = button.classList.contains('active');
+
+                        // Optimistic update
+                        if (isSaved) {
+                            button.classList.remove('active');
+                            button.style.color = '';
+                            icon.classList.remove('fas');
+                            icon.classList.add('far');
+                        } else {
+                            button.classList.add('active');
+                            button.style.color = '#1da1f2';
+                            icon.classList.remove('far');
+                            icon.classList.add('fas');
+                        }
+
+                        // Send to server
+                        fetch(`/posts/${postId}/save`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Save response:', data);
+                                if (data.success) {
+                                    if (data.saved) {
+                                        button.classList.add('active');
+                                        button.style.color = '#1da1f2';
+                                        icon.classList.remove('far');
+                                        icon.classList.add('fas');
+                                    } else {
+                                        button.classList.remove('active');
+                                        button.style.color = '';
+                                        icon.classList.remove('fas');
+                                        icon.classList.add('far');
+                                    }
+                                    this.showNotification(data.message, 'success');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error toggling save:', error);
+                                // Revert on error
+                                if (!isSaved) {
+                                    button.classList.remove('active');
+                                    button.style.color = '';
+                                    icon.classList.remove('fas');
+                                    icon.classList.add('far');
+                                } else {
+                                    button.classList.add('active');
+                                    button.style.color = '#1da1f2';
+                                    icon.classList.remove('far');
+                                    icon.classList.add('fas');
+                                }
+                            });
+                    },
+
+                    // Handle share button clicks
+                    handleShareClick: function (button) {
+                        const postId = button.dataset.postId;
+                        const countSpan = button.querySelector('span');
+                        const currentCount = parseInt(countSpan.textContent) || 0;
+
+                        // Optimistic update
+                        countSpan.textContent = currentCount + 1;
+
+                        // Send to server
+                        fetch(`/posts/${postId}/share`, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Share response:', data);
+                                if (data.success) {
+                                    countSpan.textContent = data.share_count;
+                                    this.showNotification(data.message, 'success');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error sharing post:', error);
+                                // Revert on error
+                                countSpan.textContent = currentCount;
+                            });
+                    },
+
                     // Function to preview the selected image
-                    previewImage: function(input) {
+                    previewImage: function (input) {
                         console.log("Previewing image");
                         if (input.files && input.files[0]) {
                             var reader = new FileReader();
-
-                            reader.onload = function(e) {
+                            reader.onload = function (e) {
                                 document.getElementById("previewAvatar").src = e.target.result;
                             };
-
                             reader.readAsDataURL(input.files[0]);
                         }
                     },
 
-                    // Function to save profile changes
-                    saveProfile: function() {
-                        console.log("Saving profile");
-
-                        // Get form values
-                        var displayName = document.getElementById("displayName").value;
-                        var bioMe = document.getElementById("bioMe").value;
-
-                        // Update profile info
-                        document.getElementById("profileName").textContent = displayName;
-                        document.getElementById("profileBio").textContent = bioMe;
-
-                        // Update avatar if changed
-                        var previewAvatar = document.getElementById("previewAvatar");
-                        if (previewAvatar.src !== "../assets/images/post.jpg") {
-                            document.getElementById("profileAvatar").src = previewAvatar.src;
-                        }
-
-                        // Close modal
-                        this.closeEditModal();
-
-                        // Show notification
-                        this.showNotification();
-                    },
-
                     // Function to show notification
-                    showNotification: function() {
-                        console.log("Showing notification");
+                    showNotification: function (message, type = 'success') {
+                        console.log("Showing notification:", message);
                         var notificationArea = document.getElementById("notificationArea");
                         notificationArea.innerHTML = "";
 
+                        const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+
                         var alertHTML = `
-        <div class="alert alert-success">
-          <i class="fas fa-check-circle me-2"></i>
-          Profile updated successfully!
-          <button type="button" class="btn-close" onclick="this.parentNode.style.display='none'"></button>
-        </div>
-      `;
+                                    <div class="alert ${alertClass} alert-dismissible fade show">
+                                        <i class="fas ${icon} me-2"></i>
+                                        ${message}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                `;
 
                         notificationArea.innerHTML = alertHTML;
 
                         // Auto dismiss after 5 seconds
-                        setTimeout(function() {
+                        setTimeout(function () {
                             var alert = notificationArea.querySelector(".alert");
                             if (alert) {
-                                alert.style.display = "none";
+                                alert.classList.remove('show');
                             }
                         }, 5000);
                     },
 
                     // Initialize the profile page
-                    init: function() {
+                    init: function () {
                         console.log("Initializing profile page");
 
                         // Close modal when clicking outside of it
-                        window.addEventListener("click", function(event) {
+                        window.addEventListener("click", function (event) {
                             if (event.target === document.getElementById("customEditModal")) {
                                 profilePage.closeEditModal();
                             }
                         });
 
-                        // Make posts clickable
-                        if (typeof window.makePostsClickable === 'function') {
-                            window.makePostsClickable();
-                        } else {
-                            console.log("makePostsClickable function not found, setting up retry...");
-                            let attempts = 0;
-                            const checkInterval = setInterval(function() {
-                                attempts++;
-                                if (typeof window.makePostsClickable === 'function') {
-                                    window.makePostsClickable();
-                                    clearInterval(checkInterval);
-                                    console.log("Successfully made posts clickable after retry");
-                                } else if (attempts >= 10) {
-                                    console.error("Failed to make posts clickable after 10 attempts");
-                                    clearInterval(checkInterval);
-
-                                    // Fallback direct implementation
-                                    profilePage.applyFallbackClickHandlers();
-                                }
-                            }, 300);
-                        }
+                        // Set up initial post interactions
+                        this.setupPostInteractions();
 
                         console.log("Profile page initialized");
-                    },
-
-                    // Fallback implementation if makePostsClickable is not available
-                    applyFallbackClickHandlers: function() {
-                        console.log("Applying fallback click handlers");
-                        document.querySelectorAll('.social-post').forEach((post, index) => {
-                            if (!post.closest('.reposted-content')) {
-                                if (!post.dataset.postId) {
-                                    post.dataset.postId = index + 1;
-                                }
-
-                                post.onclick = function(event) {
-                                    if (!event.target.closest('.post-actions') &&
-                                        !event.target.closest('.video-placeholder') &&
-                                        !event.target.closest('video') &&
-                                        event.target.tagName !== 'A' &&
-                                        event.target.tagName !== 'BUTTON') {
-                                        console.log("Direct click handler: navigating to post " + this.dataset
-                                            .postId);
-                                        window.loadPage('comment', this.dataset.postId);
-                                        event.preventDefault();
-                                        event.stopPropagation();
-                                    }
-                                };
-
-                                post.style.cursor = 'pointer';
-                            }
-                        });
                     }
                 };
 
                 // Document ready handler
-                document.addEventListener("DOMContentLoaded", function() {
-                    // Load the first frame of the video to use as thumbnail
-                    const thumbnailVideos = document.querySelectorAll(
-                        ".video-thumbnail-source"
-                    );
-                    thumbnailVideos.forEach((video) => {
-                        // Load just enough of the video to show the first frame
-                        video.addEventListener("loadeddata", function() {
-                            // Pause immediately to just show the first frame
-                            this.currentTime = 0.1; // Small offset to ensure we get a frame
-                            this.pause();
-                        });
-
-                        // Make sure it's muted
-                        video.muted = true;
-                        video.preload = "metadata";
-                        // Start loading
-                        video.load();
-                    });
-
-                    // Handle video end event to show placeholder again
-                    const videos = document.querySelectorAll(".video-element");
-                    videos.forEach((video) => {
-                        video.addEventListener("ended", function() {
-                            this.style.display = "none";
-                            const placeholder =
-                                this.parentNode.querySelector(".video-placeholder");
-                            if (placeholder) {
-                                placeholder.style.display = "block";
-                            }
-                        });
-                    });
-
-                    // Handle interaction functionality for action buttons
-                    function handleInteraction(button, type) {
-                        if (type === "like" || type === "save") {
-                            button.classList.toggle("active");
-
-                            // Update icon if needed
-                            const icon = button.querySelector("i");
-                            if (type === "like") {
-                                if (button.classList.contains("active")) {
-                                    icon.className = "fas fa-heart";
-                                    // Optionally increment counter
-                                    const counter = button.querySelector("span");
-                                    if (counter) {
-                                        counter.textContent = parseInt(counter.textContent) + 1;
-                                    }
-                                } else {
-                                    icon.className = "far fa-heart";
-                                    // Optionally decrement counter
-                                    const counter = button.querySelector("span");
-                                    if (counter) {
-                                        counter.textContent = parseInt(counter.textContent) - 1;
-                                    }
-                                }
-                            } else if (type === "save") {
-                                if (button.classList.contains("active")) {
-                                    icon.className = "fas fa-bookmark";
-                                } else {
-                                    icon.className = "far fa-bookmark";
-                                }
-                            }
-                        }
-
-                        console.log(`${type} button clicked`);
-                    }
-
-                    // Attach event listeners to interaction buttons
-                    const likeButtons = document.querySelectorAll(".like-btn");
-                    likeButtons.forEach((button) => {
-                        button.addEventListener("click", function() {
-                            handleInteraction(this, "like");
-                        });
-                    });
-
-                    // Comment buttons
-                    const commentButtons = document.querySelectorAll(".comment-btn");
-                    commentButtons.forEach((button) => {
-                        button.addEventListener("click", function() {
-                            handleInteraction(this, "comment");
-                        });
-                    });
-
-                    // Repost buttons
-                    const repostButtons = document.querySelectorAll(".repost-btn");
-                    repostButtons.forEach((button) => {
-                        button.addEventListener("click", function() {
-                            handleInteraction(this, "repost");
-                        });
-                    });
-
-                    // Share buttons
-                    const shareButtons = document.querySelectorAll(".share-btn");
-                    shareButtons.forEach((button) => {
-                        button.addEventListener("click", function() {
-                            handleInteraction(this, "share");
-                        });
-                    });
-
-                    // Save buttons
-                    const saveButtons = document.querySelectorAll(".save-btn");
-                    saveButtons.forEach((button) => {
-                        button.addEventListener("click", function() {
-                            handleInteraction(this, "save");
-                        });
-                    });
+                document.addEventListener("DOMContentLoaded", function () {
+                    console.log('🚀 Initializing Profile Page...');
 
                     // Initialize the profile page
                     profilePage.init();
+
+                    // Initialize global post interactions if available
+                    if (window.PostInteractions) {
+                        console.log('🔗 Initializing Post Interactions...');
+                        PostInteractions.init();
+
+                        // Trigger content loaded event for initial posts
+                        setTimeout(() => {
+                            document.dispatchEvent(new CustomEvent('ajaxContentLoaded'));
+                        }, 100);
+                    }
+
+                    console.log('✅ Profile Page initialized');
                 });
             </script>
         </div>

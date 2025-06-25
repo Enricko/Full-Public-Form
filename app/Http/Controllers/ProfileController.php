@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Log;
 class ProfileController extends Controller
 {
     // Our beloved user ID 6
-    private $userId = 4;
+    private $userId = 6;
 
     public function index(Request $request)
     {
@@ -34,18 +34,50 @@ class ProfileController extends Controller
             Log::info('AJAX request for profile tab: ' . $tab . ', page: ' . $request->get('page', 1));
         }
 
-        // Get posts based on tab type
+        // Handle comments tab differently
+        if ($tab === 'comments') {
+            $comments = $this->getUserComments($user, 10);
+            
+            // For AJAX requests, return JSON with HTML
+            if ($request->ajax()) {
+                try {
+                    $html = view('components.comments-list', compact('comments'))->render();
+
+                    return response()->json([
+                        'success' => true,
+                        'posts' => $html,
+                        'hasMore' => $comments->hasMorePages(),
+                        'currentPage' => $comments->currentPage(),
+                        'lastPage' => $comments->lastPage(),
+                        'total' => $comments->total(),
+                        'perPage' => $comments->perPage(),
+                        'from' => $comments->firstItem(),
+                        'to' => $comments->lastItem(),
+                        'tab' => $tab
+                    ]);
+                } catch (\Exception $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to load comments. Please try again.',
+                        'error' => config('app.debug') ? $e->getMessage() : null
+                    ], 500);
+                }
+            }
+
+            // Get user statistics
+            $stats = $this->getUserStats($user);
+            $posts = collect(); // Empty for comments tab
+
+            return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments'));
+        }
+
+        // Get posts based on tab type (for non-comments tabs)
         $posts = $this->getPostsByTab($user, $tab, $request->get('page', 1));
 
-        // Add interaction status for the user (compatible with your PostController structure)
+        // Add interaction status for the user (compatible with your model structure)
         $posts->getCollection()->transform(function ($post) use ($user) {
-            $post->is_liked = $this->isPostLikedByUser($post, $user);
-            $post->is_saved = $this->isPostSavedByUser($post, $user);
-            
-            // Ensure share_count exists (your PostController uses this)
-            if (!isset($post->share_count)) {
-                $post->share_count = $post->share_count ?? 0;
-            }
+            $post->is_liked = $post->isLikedBy($user);
+            $post->is_saved = $post->isSavedBy($user);
             
             return $post;
         });
@@ -78,28 +110,9 @@ class ProfileController extends Controller
 
         // Get user statistics
         $stats = $this->getUserStats($user);
+        $comments = collect(); // Empty for non-comments tabs
 
-        return view("pages.profile", compact('user', 'posts', 'stats', 'tab'));
-    }
-
-    /**
-     * Check if post is liked by user (compatible with your PostController)
-     */
-    private function isPostLikedByUser(Post $post, User $user)
-    {
-        return Like::where('user_id', $user->id)
-                   ->where('post_id', $post->id)
-                   ->exists();
-    }
-
-    /**
-     * Check if post is saved by user (compatible with your PostController)
-     */
-    private function isPostSavedByUser(Post $post, User $user)
-    {
-        return SavedPost::where('user_id', $user->id)
-                       ->where('post_id', $post->id)
-                       ->exists();
+        return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments'));
     }
 
     /**
@@ -112,9 +125,6 @@ class ProfileController extends Controller
         switch ($tab) {
             case 'posts':
                 return $this->getUserPosts($user, $perPage);
-                
-            case 'comments':
-                return $this->getUserCommentedPosts($user, $perPage);
                 
             case 'likes':
                 return $this->getUserLikedPosts($user, $perPage);
@@ -138,48 +148,20 @@ class ProfileController extends Controller
                 $query->orderBy('upload_order');
             }
         ])
-        ->select('*') // Get all columns including like_count, share_count
         ->where('user_id', $user->id)
         ->latest()
         ->paginate($perPage);
     }
 
     /**
-     * Get posts where user has commented
-     */
-    private function getUserCommentedPosts(User $user, int $perPage)
-    {
-        // Get post IDs where user has commented
-        $postIds = Comment::where('user_id', $user->id)
-            ->distinct()
-            ->pluck('post_id');
-
-        if ($postIds->isEmpty()) {
-            // Return empty paginated collection
-            return new \Illuminate\Pagination\LengthAwarePaginator(
-                collect([]), 0, $perPage, 1, ['path' => request()->url()]
-            );
-        }
-
-        return Post::with([
-            'user:id,username,display_name,avatar_url',
-            'attachments' => function ($query) {
-                $query->orderBy('upload_order');
-            }
-        ])
-        ->select('*') // Get all columns including like_count, share_count
-        ->whereIn('id', $postIds)
-        ->latest()
-        ->paginate($perPage);
-    }
-
-    /**
-     * Get posts liked by user
+     * Get posts liked by user (using your model structure)
      */
     private function getUserLikedPosts(User $user, int $perPage)
     {
-        // Get post IDs that user has liked
+        // Get post IDs that user has liked (only posts, not comments)
         $postIds = Like::where('user_id', $user->id)
+            ->whereNotNull('post_id')
+            ->whereNull('comment_id')
             ->pluck('post_id');
 
         if ($postIds->isEmpty()) {
@@ -195,42 +177,45 @@ class ProfileController extends Controller
                 $query->orderBy('upload_order');
             }
         ])
-        ->select('*') // Get all columns including like_count, share_count
         ->whereIn('id', $postIds)
         ->latest()
         ->paginate($perPage);
     }
 
     /**
-     * Get posts saved by user
+     * Get posts saved by user (using your many-to-many relationship)
      */
     private function getUserSavedPosts(User $user, int $perPage)
     {
-        // Get post IDs that user has saved
-        $postIds = SavedPost::where('user_id', $user->id)
-            ->pluck('post_id');
+        return $user->savedPosts()
+            ->with([
+                'user:id,username,display_name,avatar_url',
+                'attachments' => function ($query) {
+                    $query->orderBy('upload_order');
+                }
+            ])
+            ->latest('saved_posts.created_at')
+            ->paginate($perPage);
+    }
 
-        if ($postIds->isEmpty()) {
-            // Return empty paginated collection
-            return new \Illuminate\Pagination\LengthAwarePaginator(
-                collect([]), 0, $perPage, 1, ['path' => request()->url()]
-            );
-        }
-
-        return Post::with([
-            'user:id,username,display_name,avatar_url',
-            'attachments' => function ($query) {
-                $query->orderBy('upload_order');
+    /**
+     * Get user's comments with post data (for comments tab)
+     */
+    private function getUserComments(User $user, int $perPage)
+    {
+        return Comment::with([
+            'post.user:id,username,display_name,avatar_url',
+            'post.attachments' => function ($query) {
+                $query->where('file_type', 'like', 'image/%')->orderBy('upload_order')->limit(1);
             }
         ])
-        ->select('*') // Get all columns including like_count, share_count
-        ->whereIn('id', $postIds)
+        ->where('user_id', $user->id)
         ->latest()
         ->paginate($perPage);
     }
 
     /**
-     * Get user statistics with caching
+     * Get user statistics with caching (updated for your model structure)
      */
     private function getUserStats(User $user)
     {
@@ -238,12 +223,12 @@ class ProfileController extends Controller
         
         return Cache::remember($cacheKey, 300, function () use ($user) {
             $stats = [
-                'posts_count' => Post::where('user_id', $user->id)->count(),
-                'comments_count' => Comment::where('user_id', $user->id)->count(),
-                'likes_count' => Like::where('user_id', $user->id)->count(),
-                'saved_count' => SavedPost::where('user_id', $user->id)->count(),
-                'followers_count' => 0, // You can implement followers later
-                'following_count' => 0  // You can implement following later
+                'posts_count' => $user->posts()->count(),
+                'comments_count' => $user->comments()->count(),
+                'likes_count' => $user->likes()->whereNotNull('post_id')->whereNull('comment_id')->count(),
+                'saved_count' => $user->savedPosts()->count(),
+                'followers_count' => $user->followers()->count(),
+                'following_count' => $user->following()->count()
             ];
             
             return $stats;
@@ -349,22 +334,41 @@ class ProfileController extends Controller
 
         $tab = $request->get('tab', 'posts');
         
-        // Get fresh posts
-        $posts = $this->getPostsByTab($user, $tab, 1);
+        if ($tab === 'comments') {
+            $comments = $this->getUserComments($user, 10);
+            
+            if ($request->ajax()) {
+                $html = view('components.comments-list', compact('comments'))->render();
 
-        if ($request->ajax()) {
-            $html = view('components.post-list', compact('posts'))->render();
+                return response()->json([
+                    'success' => true,
+                    'posts' => $html,
+                    'hasMore' => $comments->hasMorePages(),
+                    'currentPage' => $comments->currentPage(),
+                    'lastPage' => $comments->lastPage(),
+                    'total' => $comments->total(),
+                    'refreshed' => true,
+                    'tab' => $tab
+                ]);
+            }
+        } else {
+            // Get fresh posts
+            $posts = $this->getPostsByTab($user, $tab, 1);
 
-            return response()->json([
-                'success' => true,
-                'posts' => $html,
-                'hasMore' => $posts->hasMorePages(),
-                'currentPage' => $posts->currentPage(),
-                'lastPage' => $posts->lastPage(),
-                'total' => $posts->total(),
-                'refreshed' => true,
-                'tab' => $tab
-            ]);
+            if ($request->ajax()) {
+                $html = view('components.post-list', compact('posts'))->render();
+
+                return response()->json([
+                    'success' => true,
+                    'posts' => $html,
+                    'hasMore' => $posts->hasMorePages(),
+                    'currentPage' => $posts->currentPage(),
+                    'lastPage' => $posts->lastPage(),
+                    'total' => $posts->total(),
+                    'refreshed' => true,
+                    'tab' => $tab
+                ]);
+            }
         }
 
         return redirect()->route('profile');

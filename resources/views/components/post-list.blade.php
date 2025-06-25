@@ -1,9 +1,9 @@
+{{-- resources/views/components/post-list.blade.php --}}
 @foreach($posts as $post)
     <div class="social-post" data-post-id="{{ $post->id }}">
         <!-- Post Header -->
         <div class="post-header">
-            <img src="{{ $post->user->avatar_url ?? asset('assets/images/profile.png') }}" alt="Profile"
-                class="post-avatar" />
+            <img src="{{ $post->user->avatar_url ?? asset('assets/images/profile.png') }}" alt="Profile" class="post-avatar" />
             <div class="post-info">
                 <div class="post-author">
                     <a href="#" class="text-decoration-none">
@@ -11,7 +11,7 @@
                     </a>
                     <span class="post-date">· {{ $post->created_at->diffForHumans() }}</span>
                 </div>
-                <div class="post-meta">{{ $post->user->display_name }}</div>
+                <div class="post-meta">{{ $post->user->display_name ?? $post->user->username }}</div>
             </div>
         </div>
 
@@ -22,27 +22,37 @@
             </div>
         @endif
 
+        <!-- Post Hashtags -->
+        @if($post->hashtags && $post->hashtags->count() > 0)
+            <div class="post-hashtags mb-2">
+                @foreach($post->hashtags as $hashtag)
+                    <span class="badge bg-light text-primary me-1">
+                        <i class="fas fa-hashtag small"></i> {{ $hashtag->name }}
+                    </span>
+                @endforeach
+            </div>
+        @endif
+
         <!-- Post Media -->
-        @if ($post->attachments->count() > 0)
+        @if (isset($post->attachments) && $post->attachments->count() > 0)
             <div class="post-media-container">
                 @foreach($post->attachments as $index => $attachment)
                     @if (str_starts_with($attachment->file_type, 'image/'))
                         <!-- Image -->
                         <div class="post-media single-image">
-                            <img src="{{ $attachment->file_path }}" alt="{{ $attachment->file_name }}"
-                                class="post-image" />
+                            <img src="{{ asset('storage/' . $attachment->file_path) }}" alt="{{ $attachment->file_name }}" class="post-image" />
                         </div>
                     @elseif(str_starts_with($attachment->file_type, 'video/'))
                         <!-- Video -->
                         <div class="post-media video-container">
                             <video id="video-{{ $post->id }}-{{ $index }}" controls class="video-element">
-                                <source src="{{ $attachment->file_path }}" type="{{ $attachment->file_type }}" />
+                                <source src="{{ asset('storage/' . $attachment->file_path) }}" type="{{ $attachment->file_type }}" />
                                 Your browser does not support the video tag.
                             </video>
                             <div class="video-placeholder" onclick="playVideo('video-{{ $post->id }}-{{ $index }}')">
                                 <div class="video-thumbnail-wrapper">
                                     <video class="video-thumbnail-source" muted>
-                                        <source src="{{ $attachment->file_path }}" type="{{ $attachment->file_type }}" />
+                                        <source src="{{ asset('storage/' . $attachment->file_path) }}" type="{{ $attachment->file_type }}" />
                                     </video>
                                     <div class="play-button">
                                         <i class="fas fa-play"></i>
@@ -81,10 +91,10 @@
                                     </div>
                                 </div>
                                 <div class="file-actions">
-                                    <a href="{{ $attachment->file_path }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1">
+                                    <a href="{{ asset('storage/' . $attachment->file_path) }}" target="_blank" class="btn btn-sm btn-outline-secondary me-1">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ $attachment->file_path }}" download class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ asset('storage/' . $attachment->file_path) }}" download class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-download"></i>
                                     </a>
                                 </div>
@@ -100,8 +110,8 @@
                         {{ $post->attachments->count() }} files attached
                         <small class="text-muted">
                             ({{ $post->attachments->where('file_type', 'like', 'image/%')->count() }} images,
-                             {{ $post->attachments->where('file_type', 'like', 'video/%')->count() }} videos,
-                             {{ $post->attachments->where('file_type', 'not like', 'image/%')->where('file_type', 'not like', 'video/%')->count() }} other files)
+                            {{ $post->attachments->where('file_type', 'like', 'video/%')->count() }} videos,
+                            {{ $post->attachments->where('file_type', 'not like', 'image/%')->where('file_type', 'not like', 'video/%')->count() }} other files)
                         </small>
                     </div>
                 @endif
@@ -111,37 +121,76 @@
         <!-- Post Actions -->
         <div class="post-actions">
             <!-- Like Button -->
-            <button
-                class="action-btn like-btn {{ auth()->check() && $post->isLikedBy(auth()->user()) ? 'liked' : '' }}"
-                data-post-id="{{ $post->id }}" {{ !auth()->check() ? 'onclick="showLoginModal()"' : '' }}>
-                <i class="{{ auth()->check() && $post->isLikedBy(auth()->user()) ? 'fas' : 'far' }} fa-heart"></i>
-                <span>{{ number_format($post->like_count) }}</span>
+            <button class="action-btn like-btn {{ isset($post->is_liked) && $post->is_liked ? 'active' : '' }}" 
+                    data-post-id="{{ $post->id }}"
+                    style="color: {{ (isset($post->is_liked) && $post->is_liked) ? '#FA2C8B' : '' }}">
+                <i class="{{ (isset($post->is_liked) && $post->is_liked) ? 'fas' : 'far' }} fa-heart"></i>
+                <span>{{ number_format($post->like_count ?? 0) }}</span>
             </button>
 
             <!-- Comment Button -->
-            <button class="action-btn comment-btn" onclick="loadPage('comment', {{ $post->id }})">
+            <button class="action-btn comment-btn" data-post-id="{{ $post->id }}">
                 <i class="far fa-comment"></i>
-                <span>{{ number_format($post->comment_count) }}</span>
+                <span>{{ number_format($post->comment_count ?? 0) }}</span>
             </button>
 
             <!-- Share Button -->
-            <button class="action-btn repost-btn" data-post-id="{{ $post->id }}"
-                {{ !auth()->check() ? 'onclick="showLoginModal()"' : 'onclick="sharePost(' . $post->id . ')"' }}>
-                <i class="fas fa-retweet"></i>
-                <span>{{ number_format($post->share_count) }}</span>
-            </button>
-
-            <!-- Share External Button -->
-            <button class="action-btn share-btn" onclick="shareExternal({{ $post->id }})">
+            <button class="action-btn share-btn" data-post-id="{{ $post->id }}">
                 <i class="far fa-share-square"></i>
+                <span>{{ number_format($post->share_count ?? 0) }}</span>
             </button>
 
             <!-- Save Button -->
-            <button
-                class="action-btn save-btn {{ auth()->check() && $post->isSavedBy(auth()->user()) ? 'saved' : '' }}"
-                data-post-id="{{ $post->id }}" {{ !auth()->check() ? 'onclick="showLoginModal()"' : '' }}>
-                <i class="{{ auth()->check() && $post->isSavedBy(auth()->user()) ? 'fas' : 'far' }} fa-bookmark"></i>
+            <button class="action-btn save-btn {{ isset($post->is_saved) && $post->is_saved ? 'active' : '' }}" 
+                    data-post-id="{{ $post->id }}"
+                    style="color: {{ (isset($post->is_saved) && $post->is_saved) ? '#1DA1F2' : '' }}">
+                <i class="{{ (isset($post->is_saved) && $post->is_saved) ? 'fas' : 'far' }} fa-bookmark"></i>
             </button>
         </div>
     </div>
 @endforeach
+
+<script>
+    // Video player functions (global for onclick handlers)
+    function playVideo(videoId) {
+        if (window.VideoPlayer) {
+            VideoPlayer.playVideo(videoId);
+        } else {
+            // Fallback
+            const video = document.getElementById(videoId);
+            const placeholder = video?.parentNode?.querySelector(".video-placeholder");
+
+            if (video && placeholder) {
+                video.style.display = "block";
+                placeholder.style.display = "none";
+                video.play().catch(console.error);
+            }
+        }
+    }
+
+    // Initialize interactions when this component loads
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('📋 Post list component loaded');
+        
+        if (typeof PostInteractions !== 'undefined') {
+            PostInteractions.init();
+        }
+        
+        if (typeof VideoPlayer !== 'undefined') {
+            VideoPlayer.init();
+        }
+    });
+
+    // Trigger custom event to reinitialize interactions after AJAX content load
+    document.addEventListener('ajaxContentLoaded', function() {
+        console.log('🔄 Ajax content loaded, reinitializing interactions');
+        
+        if (typeof PostInteractions !== 'undefined') {
+            PostInteractions.reinitialize();
+        }
+        
+        if (typeof VideoPlayer !== 'undefined') {
+            VideoPlayer.init();
+        }
+    });
+</script>

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
-    private $dummyUserId = 6; // Dummy user ID for testing
+    private $dummyUserId = 6;
 
     public function index(Request $request)
     {
@@ -30,12 +30,11 @@ class HomeController extends Controller
             'hashtags:id,name'
         ])
             ->withCount(['likes', 'comments'])
-            ->latest() // Order by newest first instead of random for better UX
-            ->paginate(5); // Start with smaller number for testing
+            ->latest()
+            ->paginate(5);
 
         // Add additional data for each post
         $posts->getCollection()->transform(function ($post) {
-            // Add interaction status for authenticated users or dummy user
             $currentUser = Auth::user() ?? User::find($this->dummyUserId);
             
             if ($currentUser) {
@@ -46,7 +45,6 @@ class HomeController extends Controller
                 $post->is_saved = false;
             }
 
-            // Ensure share_count is available
             if (!isset($post->share_count)) {
                 $post->share_count = $post->share_count ?? 0;
             }
@@ -80,44 +78,156 @@ class HomeController extends Controller
             }
         }
 
-        // For regular requests, return view with additional data
-        $trendingHashtags = $this->getTrendingHashtags();
-        $suggestedUsers = $this->getSuggestedUsers();
-
-        return view('pages.home', compact('posts', 'trendingHashtags', 'suggestedUsers'));
+        // For regular requests, return view without sidebar data
+        return view('pages.home', compact('posts'));
     }
 
     /**
-     * Get trending hashtags with caching
+     * Get trending hashtags with follow status (JSON endpoint)
      */
-    private function getTrendingHashtags()
+    public function getTrendingHashtags()
     {
-        return Cache::remember('trending_hashtags', 300, function () { // Cache for 5 minutes
-            return Hashtag::trending(9)->get();
+        $currentUser = Auth::user() ?? User::find($this->dummyUserId);
+        
+        $hashtags = Cache::remember('trending_hashtags_with_follow_' . ($currentUser ? $currentUser->id : 'guest'), 300, function () use ($currentUser) {
+            $hashtags = Hashtag::trending(9)->get();
+            
+            if ($currentUser) {
+                $hashtags->each(function ($hashtag) use ($currentUser) {
+                    $hashtag->is_following = $currentUser->isFollowingHashtag($hashtag->id);
+                });
+            } else {
+                $hashtags->each(function ($hashtag) {
+                    $hashtag->is_following = false;
+                });
+            }
+            
+            return $hashtags;
         });
+
+        return response()->json([
+            'success' => true,
+            'hashtags' => $hashtags
+        ]);
     }
 
     /**
-     * Get suggested users with caching
+     * Get suggested users with follow status (JSON endpoint)
      */
-    private function getSuggestedUsers()
+    public function getSuggestedUsers()
     {
-        $userId = Auth::id() ?? $this->dummyUserId;
-        $cacheKey = 'suggested_users_' . $userId;
-
-        return Cache::remember($cacheKey, 600, function () use ($userId) { // Cache for 10 minutes
-            return User::where('id', '!=', $userId)
+        $currentUser = Auth::user() ?? User::find($this->dummyUserId);
+        $userId = $currentUser ? $currentUser->id : $this->dummyUserId;
+        
+        $users = Cache::remember('suggested_users_with_follow_' . $userId, 600, function () use ($userId, $currentUser) {
+            $users = User::where('id', '!=', $userId)
                 ->withCount('posts')
-                ->has('posts', '>=', 1) // Only suggest users who have posted
+                ->has('posts', '>=', 1)
                 ->inRandomOrder()
                 ->limit(4)
                 ->get();
+                
+            if ($currentUser) {
+                $users->each(function ($user) use ($currentUser) {
+                    $user->is_following = $currentUser->isFollowing($user->id);
+                });
+            } else {
+                $users->each(function ($user) {
+                    $user->is_following = false;
+                });
+            }
+            
+            return $users;
         });
+
+        return response()->json([
+            'success' => true,
+            'users' => $users
+        ]);
     }
 
     /**
-     * Load more posts for infinite scroll (alternative endpoint)
+     * Follow/Unfollow a hashtag
      */
+    public function toggleHashtagFollow(Request $request, $hashtagId)
+    {
+        $currentUser = Auth::user() ?? User::find($this->dummyUserId);
+        $hashtag = Hashtag::find($hashtagId);
+
+        if (!$currentUser || !$hashtag) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User or hashtag not found'
+            ], 404);
+        }
+
+        $isFollowing = $currentUser->isFollowingHashtag($hashtag->id);
+
+        if ($isFollowing) {
+            $currentUser->followingHashtags()->detach($hashtag->id);
+            $followed = false;
+            $message = 'Hashtag #' . $hashtag->name . ' unfollowed';
+        } else {
+            $currentUser->followingHashtags()->attach($hashtag->id);
+            $followed = true;
+            $message = 'Following #' . $hashtag->name;
+        }
+
+        // Clear relevant caches
+        Cache::forget('trending_hashtags_with_follow_' . $currentUser->id);
+
+        return response()->json([
+            'success' => true,
+            'following' => $followed,
+            'message' => $message
+        ]);
+    }
+
+    /**
+     * Follow/Unfollow a user
+     */
+    public function toggleUserFollow(Request $request, $userId)
+    {
+        $currentUser = Auth::user() ?? User::find($this->dummyUserId);
+        $targetUser = User::find($userId);
+
+        if (!$currentUser || !$targetUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        if ($currentUser->id === $targetUser->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot follow yourself'
+            ], 400);
+        }
+
+        $isFollowing = $currentUser->isFollowing($targetUser->id);
+
+        if ($isFollowing) {
+            $currentUser->unfollow($targetUser->id);
+            $followed = false;
+            $message = 'Unfollowed ' . $targetUser->username;
+        } else {
+            $currentUser->follow($targetUser->id);
+            $followed = true;
+            $message = 'Following ' . $targetUser->username;
+        }
+
+        // Clear relevant caches
+        Cache::forget('suggested_users_with_follow_' . $currentUser->id);
+
+        return response()->json([
+            'success' => true,
+            'following' => $followed,
+            'message' => $message
+        ]);
+    }
+
+    // Keep your existing methods...
     public function loadMore(Request $request)
     {
         $request->validate([
@@ -127,9 +237,6 @@ class HomeController extends Controller
         return $this->index($request);
     }
 
-    /**
-     * Refresh posts (for pull-to-refresh functionality)
-     */
     public function refresh(Request $request)
     {
         // Clear relevant caches
@@ -138,7 +245,6 @@ class HomeController extends Controller
         $userId = Auth::id() ?? $this->dummyUserId;
         Cache::forget('suggested_users_' . $userId);
 
-        // Get fresh posts
         $posts = Post::with([
             'user:id,username,display_name,avatar_url',
             'attachments' => function ($query) {
@@ -150,7 +256,6 @@ class HomeController extends Controller
             ->latest()
             ->paginate(10);
 
-        // Add interaction status for each post
         $posts->getCollection()->transform(function ($post) {
             $currentUser = Auth::user() ?? User::find($this->dummyUserId);
             
@@ -162,7 +267,6 @@ class HomeController extends Controller
                 $post->is_saved = false;
             }
 
-            // Ensure share_count is available
             if (!isset($post->share_count)) {
                 $post->share_count = $post->share_count ?? 0;
             }

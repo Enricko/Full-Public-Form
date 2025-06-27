@@ -109,4 +109,54 @@ class User extends Authenticatable
     {
         return $this->followingHashtags()->where('hashtag_id', $hashtagId)->exists();
     }
+
+    // ADD THESE NEW METHODS:
+
+    /**
+     * Follow a user
+     */
+    public function follow($userId)
+    {
+        if ($this->id === $userId) {
+            return false; // Can't follow yourself
+        }
+
+        if ($this->isFollowing($userId)) {
+            return false; // Already following
+        }
+
+        return $this->following()->attach($userId);
+    }
+
+    /**
+     * Unfollow a user
+     */
+    public function unfollow($userId)
+    {
+        return $this->following()->detach($userId);
+    }
+
+    /**
+     * Get follower count
+     */
+    public function getFollowerCountAttribute()
+    {
+        return $this->followers()->count();
+    }
+
+    /**
+     * Get following count
+     */
+    public function getFollowingCountAttribute()
+    {
+        return $this->following()->count();
+    }
+
+    /**
+     * Check if user is followed by another user
+     */
+    public function isFollowedBy($userId)
+    {
+        return $this->followers()->where('follower_id', $userId)->exists();
+    }
 }

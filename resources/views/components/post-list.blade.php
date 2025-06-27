@@ -3,10 +3,10 @@
     <div class="social-post" data-post-id="{{ $post->id }}">
         <!-- Post Header -->
         <div class="post-header">
-            <img src="{{ $post->user->avatar_url ?? asset('assets/images/profile.png') }}" alt="Profile" class="post-avatar" />
+            <img src="{{ asset("storage/".$post->user->avatar_url) ?? asset('assets/images/profile.png') }}" alt="Profile" class="post-avatar" />
             <div class="post-info">
                 <div class="post-author">
-                    <a href="#" class="text-decoration-none">
+                    <a href="{{ route('profile.user', $post->user->id) }}" class="text-decoration-none">
                         {{ $post->user->username }}
                     </a>
                     <span class="post-date">· {{ $post->created_at->diffForHumans() }}</span>
@@ -121,9 +121,7 @@
         <!-- Post Actions -->
         <div class="post-actions">
             <!-- Like Button -->
-            <button class="action-btn like-btn {{ isset($post->is_liked) && $post->is_liked ? 'active' : '' }}" 
-                    data-post-id="{{ $post->id }}"
-                    style="color: {{ (isset($post->is_liked) && $post->is_liked) ? '#FA2C8B' : '' }}">
+            <button class="action-btn like-btn {{ isset($post->is_liked) && $post->is_liked ? 'active' : '' }}" data-post-id="{{ $post->id }}" style="color: {{ (isset($post->is_liked) && $post->is_liked) ? '#FA2C8B' : '' }}">
                 <i class="{{ (isset($post->is_liked) && $post->is_liked) ? 'fas' : 'far' }} fa-heart"></i>
                 <span>{{ number_format($post->like_count ?? 0) }}</span>
             </button>
@@ -141,9 +139,7 @@
             </button>
 
             <!-- Save Button -->
-            <button class="action-btn save-btn {{ isset($post->is_saved) && $post->is_saved ? 'active' : '' }}" 
-                    data-post-id="{{ $post->id }}"
-                    style="color: {{ (isset($post->is_saved) && $post->is_saved) ? '#1DA1F2' : '' }}">
+            <button class="action-btn save-btn {{ isset($post->is_saved) && $post->is_saved ? 'active' : '' }}" data-post-id="{{ $post->id }}" style="color: {{ (isset($post->is_saved) && $post->is_saved) ? '#1DA1F2' : '' }}">
                 <i class="{{ (isset($post->is_saved) && $post->is_saved) ? 'fas' : 'far' }} fa-bookmark"></i>
             </button>
         </div>
@@ -169,26 +165,26 @@
     }
 
     // Initialize interactions when this component loads
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         console.log('📋 Post list component loaded');
-        
+
         if (typeof PostInteractions !== 'undefined') {
             PostInteractions.init();
         }
-        
+
         if (typeof VideoPlayer !== 'undefined') {
             VideoPlayer.init();
         }
     });
 
     // Trigger custom event to reinitialize interactions after AJAX content load
-    document.addEventListener('ajaxContentLoaded', function() {
+    document.addEventListener('ajaxContentLoaded', function () {
         console.log('🔄 Ajax content loaded, reinitializing interactions');
-        
+
         if (typeof PostInteractions !== 'undefined') {
             PostInteractions.reinitialize();
         }
-        
+
         if (typeof VideoPlayer !== 'undefined') {
             VideoPlayer.init();
         }

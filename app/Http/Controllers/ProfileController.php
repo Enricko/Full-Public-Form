@@ -15,29 +15,42 @@ use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
-    // Our beloved user ID 6
-    private $userId = 6;
+    // Default user ID (can be overridden by route parameter)
+    private $defaultUserId = 6;
 
-    public function index(Request $request)
+    public function index(Request $request, $userId = null)
     {
-        $user = User::where('id', $this->userId)->first();
-        
+        // Use provided userId or default to 6
+        $targetUserId = $userId ?? $this->defaultUserId;
+
+        $user = User::where('id', $targetUserId)->first();
+
         if (!$user) {
             abort(404, 'User not found');
         }
 
+        // Check if this is the current user's own profile (for edit permissions)
+        $isOwnProfile = $targetUserId == $this->defaultUserId;
+
+        // Get current user for follow status
+        $currentUser = User::find($this->defaultUserId);
+        $isFollowing = false;
+        if ($currentUser && !$isOwnProfile) {
+            $isFollowing = $currentUser->isFollowing($targetUserId);
+        }
+
         // Determine which tab we're showing
         $tab = $request->get('tab', 'posts');
-        
+
         // Debug logging for AJAX requests
         if ($request->ajax()) {
-            Log::info('AJAX request for profile tab: ' . $tab . ', page: ' . $request->get('page', 1));
+            Log::info('AJAX request for profile tab: ' . $tab . ', page: ' . $request->get('page', 1) . ', user: ' . $targetUserId);
         }
 
         // Handle comments tab differently
         if ($tab === 'comments') {
             $comments = $this->getUserComments($user, 10);
-            
+
             // For AJAX requests, return JSON with HTML
             if ($request->ajax()) {
                 try {
@@ -68,19 +81,21 @@ class ProfileController extends Controller
             $stats = $this->getUserStats($user);
             $posts = collect(); // Empty for comments tab
 
-            return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments'));
+            return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments', 'isOwnProfile', 'isFollowing'));
         }
 
         // Get posts based on tab type (for non-comments tabs)
-        $posts = $this->getPostsByTab($user, $tab, $request->get('page', 1));
+        $posts = $this->getPostsByTab($user, $tab, $request->get('page', 1), $isOwnProfile);
 
-        // Add interaction status for the user (compatible with your model structure)
-        $posts->getCollection()->transform(function ($post) use ($user) {
-            $post->is_liked = $post->isLikedBy($user);
-            $post->is_saved = $post->isSavedBy($user);
-            
-            return $post;
-        });
+        // Add interaction status for the current user (user ID 6)
+        if ($currentUser) {
+            $posts->getCollection()->transform(function ($post) use ($currentUser) {
+                $post->is_liked = $post->isLikedBy($currentUser);
+                $post->is_saved = $post->isSavedBy($currentUser);
+
+                return $post;
+            });
+        }
 
         // For AJAX requests, return JSON with HTML
         if ($request->ajax()) {
@@ -110,28 +125,53 @@ class ProfileController extends Controller
 
         // Get user statistics
         $stats = $this->getUserStats($user);
+
         $comments = collect(); // Empty for non-comments tabs
 
-        return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments'));
+        return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments', 'isOwnProfile', 'isFollowing'));
     }
 
     /**
      * Get posts based on tab type
      */
-    private function getPostsByTab(User $user, string $tab, int $page = 1)
+    private function getPostsByTab(User $user, string $tab, int $page = 1, bool $isOwnProfile = false)
     {
         $perPage = 10;
-        
+
         switch ($tab) {
             case 'posts':
                 return $this->getUserPosts($user, $perPage);
-                
+
             case 'likes':
-                return $this->getUserLikedPosts($user, $perPage);
-                
+                // Only show liked posts if it's the user's own profile
+                if ($isOwnProfile) {
+                    return $this->getUserLikedPosts($user, $perPage);
+                } else {
+                    // Return empty collection for other users' liked posts (privacy)
+                    return new \Illuminate\Pagination\LengthAwarePaginator(
+                        collect([]),
+                        0,
+                        $perPage,
+                        1,
+                        ['path' => request()->url()]
+                    );
+                }
+
             case 'saved':
-                return $this->getUserSavedPosts($user, $perPage);
-                
+                // Only show saved posts if it's the user's own profile
+                if ($isOwnProfile) {
+                    return $this->getUserSavedPosts($user, $perPage);
+                } else {
+                    // Return empty collection for other users' saved posts (privacy)
+                    return new \Illuminate\Pagination\LengthAwarePaginator(
+                        collect([]),
+                        0,
+                        $perPage,
+                        1,
+                        ['path' => request()->url()]
+                    );
+                }
+
             default:
                 return $this->getUserPosts($user, $perPage);
         }
@@ -148,9 +188,9 @@ class ProfileController extends Controller
                 $query->orderBy('upload_order');
             }
         ])
-        ->where('user_id', $user->id)
-        ->latest()
-        ->paginate($perPage);
+            ->where('user_id', $user->id)
+            ->latest()
+            ->paginate($perPage);
     }
 
     /**
@@ -167,7 +207,11 @@ class ProfileController extends Controller
         if ($postIds->isEmpty()) {
             // Return empty paginated collection
             return new \Illuminate\Pagination\LengthAwarePaginator(
-                collect([]), 0, $perPage, 1, ['path' => request()->url()]
+                collect([]),
+                0,
+                $perPage,
+                1,
+                ['path' => request()->url()]
             );
         }
 
@@ -177,9 +221,9 @@ class ProfileController extends Controller
                 $query->orderBy('upload_order');
             }
         ])
-        ->whereIn('id', $postIds)
-        ->latest()
-        ->paginate($perPage);
+            ->whereIn('id', $postIds)
+            ->latest()
+            ->paginate($perPage);
     }
 
     /**
@@ -209,9 +253,9 @@ class ProfileController extends Controller
                 $query->where('file_type', 'like', 'image/%')->orderBy('upload_order')->limit(1);
             }
         ])
-        ->where('user_id', $user->id)
-        ->latest()
-        ->paginate($perPage);
+            ->where('user_id', $user->id)
+            ->latest()
+            ->paginate($perPage);
     }
 
     /**
@@ -220,25 +264,72 @@ class ProfileController extends Controller
     private function getUserStats(User $user)
     {
         $cacheKey = 'user_stats_' . $user->id;
-        
+
         return Cache::remember($cacheKey, 300, function () use ($user) {
             $stats = [
                 'posts_count' => $user->posts()->count(),
                 'comments_count' => $user->comments()->count(),
-                'likes_count' => $user->likes()->whereNotNull('post_id')->whereNull('comment_id')->count(),
+                'likes_count' => Like::where('user_id', $user->id)
+                    ->whereNotNull('post_id')
+                    ->whereNull('comment_id')
+                    ->count(),
                 'saved_count' => $user->savedPosts()->count(),
                 'followers_count' => $user->followers()->count(),
                 'following_count' => $user->following()->count()
             ];
-            
+
             return $stats;
         });
     }
 
+    public function toggleFollow(Request $request, $userId)
+    {
+        $currentUser = User::find($this->defaultUserId);
+        $targetUser = User::find($userId);
+
+        if (!$currentUser || !$targetUser) {
+            return response()->json([
+                'success' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        if ($currentUser->id === $targetUser->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot follow yourself'
+            ], 400);
+        }
+
+        $isFollowing = $currentUser->isFollowing($targetUser->id);
+
+        if ($isFollowing) {
+            $currentUser->unfollow($targetUser->id);
+            $followed = false;
+            $message = 'Unfollowed ' . $targetUser->username;
+        } else {
+            $currentUser->follow($targetUser->id);
+            $followed = true;
+            $message = 'Following ' . $targetUser->username;
+        }
+
+        // Clear cache for both users
+        Cache::forget('user_stats_' . $currentUser->id);
+        Cache::forget('user_stats_' . $targetUser->id);
+
+        return response()->json([
+            'success' => true,
+            'following' => $followed,
+            'followers_count' => $targetUser->fresh()->followers()->count(),
+            'following_count' => $currentUser->fresh()->following()->count(),
+            'message' => $message
+        ]);
+    }
+
     /**
-     * Switch tabs (for AJAX tab switching)
+     * Switch tabs (for AJAX tab switching) - now supports user ID
      */
-    public function switchTab(Request $request)
+    public function switchTab(Request $request, $userId = null)
     {
         $request->validate([
             'tab' => 'required|string|in:posts,comments,likes,saved'
@@ -247,24 +338,24 @@ class ProfileController extends Controller
         // Clear page parameter when switching tabs
         $request->merge(['page' => 1]);
 
-        return $this->index($request);
+        return $this->index($request, $userId);
     }
 
     /**
-     * Load more posts for infinite scroll
+     * Load more posts for infinite scroll - now supports user ID
      */
-    public function loadMore(Request $request)
+    public function loadMore(Request $request, $userId = null)
     {
         $request->validate([
             'page' => 'integer|min:1',
             'tab' => 'string|in:posts,comments,likes,saved'
         ]);
 
-        return $this->index($request);
+        return $this->index($request, $userId);
     }
 
     /**
-     * Your existing editProfile method (updated for better validation)
+     * Your existing editProfile method (only works for own profile)
      */
     public function editProfile(Request $request)
     {
@@ -274,8 +365,9 @@ class ProfileController extends Controller
             'bio' => 'nullable|max:500',
         ]);
 
-        $user = User::find($this->userId);
-        
+        // Only allow editing own profile (user ID 6)
+        $user = User::find($this->defaultUserId);
+
         if (!$user) {
             return response()->json([
                 'success' => false,
@@ -320,11 +412,13 @@ class ProfileController extends Controller
     }
 
     /**
-     * Refresh profile data
+     * Refresh profile data - now supports user ID
      */
-    public function refresh(Request $request)
+    public function refresh(Request $request, $userId = null)
     {
-        $user = User::find($this->userId);
+        $targetUserId = $userId ?? $this->defaultUserId;
+        $user = User::find($targetUserId);
+
         if (!$user) {
             abort(404, 'User not found');
         }
@@ -333,10 +427,11 @@ class ProfileController extends Controller
         Cache::forget('user_stats_' . $user->id);
 
         $tab = $request->get('tab', 'posts');
-        
+        $isOwnProfile = $targetUserId == $this->defaultUserId;
+
         if ($tab === 'comments') {
             $comments = $this->getUserComments($user, 10);
-            
+
             if ($request->ajax()) {
                 $html = view('components.comments-list', compact('comments'))->render();
 
@@ -353,7 +448,7 @@ class ProfileController extends Controller
             }
         } else {
             // Get fresh posts
-            $posts = $this->getPostsByTab($user, $tab, 1);
+            $posts = $this->getPostsByTab($user, $tab, 1, $isOwnProfile);
 
             if ($request->ajax()) {
                 $html = view('components.post-list', compact('posts'))->render();
@@ -371,6 +466,43 @@ class ProfileController extends Controller
             }
         }
 
-        return redirect()->route('profile');
+        return redirect()->route('profile', ['userId' => $userId]);
+    }
+
+    /**
+     * Get all users for listing/search
+     */
+    public function users(Request $request)
+    {
+        $search = $request->get('search');
+        $perPage = $request->get('per_page', 20);
+
+        $query = User::select('id', 'username', 'display_name', 'avatar_url', 'bio', 'created_at');
+
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('username', 'like', '%' . $search . '%')
+                    ->orWhere('display_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        $users = $query->latest()->paginate($perPage);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'users' => $users->items(),
+                'pagination' => [
+                    'current_page' => $users->currentPage(),
+                    'last_page' => $users->lastPage(),
+                    'per_page' => $users->perPage(),
+                    'total' => $users->total(),
+                    'from' => $users->firstItem(),
+                    'to' => $users->lastItem(),
+                ]
+            ]);
+        }
+
+        return view('pages.users', compact('users', 'search'));
     }
 }

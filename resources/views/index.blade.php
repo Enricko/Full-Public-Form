@@ -101,158 +101,39 @@
             </div>
 
             <div class="col-md-2">
-
                 <div class="right-sidebar">
-
                     <div class="trending">
                         <h3>Sedang Hangat 🔥</h3>
-
-                        <div class="trending-item">
-                            <div class="trending-item-info">
-                                <strong>#AIRevolusi</strong>
-                                <small>23.000 postingan</small>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="trending-item">
-                            <div class="trending-item-info">
-                                <strong>#Robotika2025</strong>
-                                <small>11.500 postingan</small>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="trending-item">
-                            <div class="trending-item-info">
-                                <strong>#DesainWeb</strong>
-                                <small>9.830 postingan</small>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="trending-item">
-                            <div class="trending-item-info">
-                                <strong>#StartupTech</strong>
-                                <small>8.210 postingan</small>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="trending-item">
-                            <div class="trending-item-info">
-                                <strong>#XThreadsDesign</strong>
-                                <small>7.980 postingan</small>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="trending-item">
-                            <div class="trending-item-info">
-                                <strong>#UX2025</strong>
-                                <small>6.100 postingan</small>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="trending-item">
-                            <div class="trending-item-info">
-                                <strong>#NgodingSantai</strong>
-                                <small>5.000 postingan</small>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="trending-item">
-                            <div class="trending-item-info">
-                                <strong>#NextUITrend</strong>
-                                <small>4.780 postingan</small>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="trending-item">
-                            <div class="trending-item-info">
-                                <strong>#GPTWebDev</strong>
-                                <small>3.400 postingan</small>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
+                        <div id="trending-container">
+                            <!-- Loading placeholder -->
+                            <div class="loading-placeholder">
+                                <div class="placeholder-item">
+                                    <div class="placeholder-shimmer"></div>
+                                </div>
+                                <div class="placeholder-item">
+                                    <div class="placeholder-shimmer"></div>
+                                </div>
+                                <div class="placeholder-item">
+                                    <div class="placeholder-shimmer"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="suggested-users">
                         <h3>Rekomendasi Akun</h3>
-
-                        <div class="user">
-                            <div class="user-avatar">
-                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle" width="40" height="40" />
-                            </div>
-                            <div class="user-info-container">
-                                <span class="user-name">@JavaScriptMaster</span>
-                                <span class="user-description">JavaScript Developer & Instructor</span>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="user">
-                            <div class="user-avatar">
-                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle" width="40" height="40" />
-                            </div>
-                            <div class="user-info-container">
-                                <span class="user-name">@desainin</span>
-                                <span class="user-description">JavaScript Developer & Instructor</span>
-                                <span class="user-additional-info">500+ posts • Member since January 2023</span>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="user">
-                            <div class="user-avatar">
-                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle" width="40" height="40" />
-                            </div>
-                            <div class="user-info-container">
-                                <span class="user-name">@techbabe</span>
-                                <span class="user-description">JavaScript Developer & Instructor</span>
-                                <span class="user-additional-info">500+ posts • Member since January 2023</span>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
-                            </div>
-                        </div>
-
-                        <div class="user">
-                            <div class="user-avatar">
-                                <img src="../assets/images/profile.png" alt="Profile" class="rounded-circle" width="40" height="40" />
-                            </div>
-                            <div class="user-info-container">
-                                <span class="user-name">@aibot</span>
-                                <span class="user-description">JavaScript Developer & Instructor</span>
-                                <span class="user-additional-info">500+ posts • Member since January 2023</span>
-                            </div>
-                            <div class="follow-btn-container">
-                                <button class="follow-btn">Ikuti</button>
+                        <div id="suggested-users-container">
+                            <!-- Loading placeholder -->
+                            <div class="loading-placeholder">
+                                <div class="placeholder-item">
+                                    <div class="placeholder-shimmer"></div>
+                                </div>
+                                <div class="placeholder-item">
+                                    <div class="placeholder-shimmer"></div>
+                                </div>
+                                <div class="placeholder-item">
+                                    <div class="placeholder-shimmer"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -279,6 +160,270 @@
             baseUrl: '{{ url('/') }}',
             debug: {{ config('app.debug') ? 'true' : 'false' }}
         };
+    </script>
+
+    <script>
+        // Sidebar management
+        const Sidebar = {
+            init: function () {
+                this.loadTrendingHashtags();
+                this.loadSuggestedUsers();
+            },
+
+            loadTrendingHashtags: function () {
+                fetch('/trending-hashtags')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.renderTrendingHashtags(data.hashtags);
+                        } else {
+                            this.showFallbackTrending();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading trending hashtags:', error);
+                        this.showFallbackTrending();
+                    });
+            },
+
+            loadSuggestedUsers: function () {
+                fetch('/suggested-users')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            this.renderSuggestedUsers(data.users);
+                        } else {
+                            this.showFallbackUsers();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading suggested users:', error);
+                        this.showFallbackUsers();
+                    });
+            },
+
+            renderTrendingHashtags: function (hashtags) {
+                const container = document.getElementById('trending-container');
+                let html = '';
+
+                hashtags.forEach(hashtag => {
+                    html += `
+                <div class="trending-item">
+                    <div class="trending-item-info">
+                        <strong>#${hashtag.name}</strong>
+                        <small>${this.formatNumber(hashtag.post_count)} postingan</small>
+                    </div>
+                    <div class="follow-btn-container">
+                        <button class="follow-btn ${hashtag.is_following ? 'outline' : ''}" 
+                                onclick="toggleHashtagFollow(${hashtag.id}, this)"
+                                data-hashtag-id="${hashtag.id}">
+                            ${hashtag.is_following ? 'Mengikuti' : 'Ikuti'}
+                        </button>
+                    </div>
+                </div>
+            `;
+                });
+
+                container.innerHTML = html;
+            },
+
+            renderSuggestedUsers: function (users) {
+                const container = document.getElementById('suggested-users-container');
+                let html = '';
+
+                users.forEach(user => {
+                    const avatarUrl = user.avatar_url ? `/storage/${user.avatar_url}` : '/assets/images/profile.png';
+                    html += `
+                <div class="user">
+                    <div class="user-avatar">
+                        <img src="${avatarUrl}" alt="Profile" class="rounded-circle" width="40" height="40" />
+                    </div>
+                    <div class="user-info-container">
+                        <span class="user-name">
+                            <a href="/profile/${user.id}" class="text-decoration-none">
+                                @${user.username}
+                            </a>
+                        </span>
+                        <span class="user-description">${user.display_name || 'Community Member'}</span>
+                        <span class="user-additional-info">${user.posts_count}+ posts • Member since ${this.formatDate(user.created_at)}</span>
+                    </div>
+                    <div class="follow-btn-container">
+                        <button class="follow-btn ${user.is_following ? 'outline' : ''}" 
+                                onclick="toggleUserFollow(${user.id}, this)"
+                                data-user-id="${user.id}">
+                            ${user.is_following ? 'Mengikuti' : 'Ikuti'}
+                        </button>
+                    </div>
+                </div>
+            `;
+                });
+
+                container.innerHTML = html;
+            },
+
+            showFallbackTrending: function () {
+                const container = document.getElementById('trending-container');
+                container.innerHTML = `
+            <div class="trending-item">
+                <div class="trending-item-info">
+                    <strong>#AIRevolusi</strong>
+                    <small>23.000 postingan</small>
+                </div>
+                <div class="follow-btn-container">
+                    <button class="follow-btn" onclick="showLoginPrompt()">Ikuti</button>
+                </div>
+            </div>
+            <div class="trending-item">
+                <div class="trending-item-info">
+                    <strong>#Robotika2025</strong>
+                    <small>11.500 postingan</small>
+                </div>
+                <div class="follow-btn-container">
+                    <button class="follow-btn" onclick="showLoginPrompt()">Ikuti</button>
+                </div>
+            </div>
+        `;
+            },
+
+            showFallbackUsers: function () {
+                const container = document.getElementById('suggested-users-container');
+                container.innerHTML = `
+            <div class="user">
+                <div class="user-avatar">
+                    <img src="/assets/images/profile.png" alt="Profile" class="rounded-circle" width="40" height="40" />
+                </div>
+                <div class="user-info-container">
+                    <span class="user-name">@JavaScriptMaster</span>
+                    <span class="user-description">JavaScript Developer</span>
+                </div>
+                <div class="follow-btn-container">
+                    <button class="follow-btn" onclick="showLoginPrompt()">Ikuti</button>
+                </div>
+            </div>
+        `;
+            },
+
+            formatNumber: function (num) {
+                if (num >= 1000000) {
+                    return (num / 1000000).toFixed(1) + 'M';
+                } else if (num >= 1000) {
+                    return (num / 1000).toFixed(1) + 'K';
+                }
+                return num.toString();
+            },
+
+            formatDate: function (dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
+            }
+        };
+
+        // Follow functions
+        function toggleHashtagFollow(hashtagId, button) {
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = 'Loading...';
+
+            fetch(`/hashtag/${hashtagId}/follow`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.following) {
+                            button.className = 'follow-btn outline';
+                            button.textContent = 'Mengikuti';
+                        } else {
+                            button.className = 'follow-btn';
+                            button.textContent = 'Ikuti';
+                        }
+                        showNotification(data.message, 'success');
+                    } else {
+                        showNotification(data.message, 'error');
+                        button.textContent = originalText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('An error occurred. Please try again.', 'error');
+                    button.textContent = originalText;
+                })
+                .finally(() => {
+                    button.disabled = false;
+                });
+        }
+
+        function toggleUserFollow(userId, button) {
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = 'Loading...';
+
+            fetch(`/user/${userId}/follow`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.following) {
+                            button.className = 'follow-btn outline';
+                            button.textContent = 'Mengikuti';
+                        } else {
+                            button.className = 'follow-btn';
+                            button.textContent = 'Ikuti';
+                        }
+                        showNotification(data.message, 'success');
+                    } else {
+                        showNotification(data.message, 'error');
+                        button.textContent = originalText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('An error occurred. Please try again.', 'error');
+                    button.textContent = originalText;
+                })
+                .finally(() => {
+                    button.disabled = false;
+                });
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show position-fixed`;
+            notification.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+            notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 5000);
+        }
+
+        function showLoginPrompt() {
+            showNotification('Please log in to follow hashtags and users.', 'info');
+        }
+
+        // Initialize sidebar when page loads
+        document.addEventListener('DOMContentLoaded', function () {
+            Sidebar.init();
+        });
     </script>
 </body>
 

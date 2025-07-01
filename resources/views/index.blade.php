@@ -88,9 +88,9 @@
                         <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">🏠
                                 Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('profile') }}">👤 Profile</a></li>
-                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="loadPage('search')">🔍 Search</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('search') }}" onclick="loadPage('search')">🔍 Search</a></li>
                         <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="loadPage('settings')">⚙️ Settings</a></li>
-                        <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="loadPage('comment')">⚙️ Comment</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ route('comment') }}" onclick="loadPage('comment')">⚙️ Comment</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ route('about') }}" onclick="loadPage('about')">ℹ️ About Us</a></li>
                     </ul>
                 </div>

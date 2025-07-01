@@ -5,6 +5,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AboutController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\CommentController;
 
 // Home routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -70,3 +72,19 @@ Route::get('/suggested-users', [HomeController::class, 'getSuggestedUsers'])->na
 // Follow functionality
 Route::post('/hashtag/{hashtagId}/follow', [HomeController::class, 'toggleHashtagFollow'])->name('hashtag.follow')->where('hashtagId', '[0-9]+');
 Route::post('/user/{userId}/follow', [HomeController::class, 'toggleUserFollow'])->name('user.follow')->where('userId', '[0-9]+');
+// Search routes
+Route::get('/search', [SearchController::class, 'index'])->name('search');
+Route::get('/search/load-more', [SearchController::class, 'loadMore'])->name('search.load-more');
+
+// Additional search API routes for AJAX functionality
+Route::post('/search/filter', [SearchController::class, 'index'])->name('search.filter');
+Route::get('/search/suggestions', [SearchController::class, 'suggestions'])->name('search.suggestions');  
+
+// Comment routes
+Route::get('/comment', [CommentController::class, 'index'])->name('comment');
+Route::post('/comments', [CommentController::class, 'store'])->name('comments.store');
+Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->name('comments.like');
+Route::delete('/comments/{comment}/like', [CommentController::class, 'like']);
+
+// Load more comments
+Route::get('/comments/load-more', [CommentController::class, 'loadMore'])->name('comments.load-more');

@@ -304,7 +304,8 @@ window.PostInteractions = {
         
         // You can implement comment functionality here
         // For now, just show a message
-        this.showNotification('Comment functionality coming soon!', 'info');
+        
+        window.location.href = `/comment?id=${postId}`;
     },
 
     // UI Helper functions

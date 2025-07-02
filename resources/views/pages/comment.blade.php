@@ -344,7 +344,6 @@
 
 {{-- Add your existing CSS styles --}}
 <style>
-  /* Previous styles remain the same... */
   .comments-section {
     background-color: #ffffff;
     border-radius: 12px;
@@ -721,23 +720,28 @@
 </style>
 
 <script>
-  // Global variables
+  // Global variables - initialize from backend
   window.isAuthenticated = {{ $isAuthenticated ? 'true' : 'false' }};
-  window.currentUserId = {{ $isAuthenticated ? ($currentUser->id ?? 'null') : 'null' }};
+  window.currentUserId = {{ $isAuthenticated && $currentUser ? $currentUser->id : 'null' }};
 
   document.addEventListener('DOMContentLoaded', function() {
+    
+    // Check authentication status using your existing endpoint
+    checkAuthStatus();
+
     // Handle comment form submission (only for authenticated users)
     const commentForm = document.getElementById('comment-form');
-    if (commentForm && window.isAuthenticated) {
+    if (commentForm) {
       commentForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
-        const formData = new FormData(this);
-        // Add user ID for backend authentication
-        if (window.currentUserId) {
-          formData.append('user_id', window.currentUserId);
+        // Check authentication before proceeding
+        if (!window.isAuthenticated) {
+          showLoginPrompt();
+          return;
         }
 
+        const formData = new FormData(this);
         const submitBtn = this.querySelector('.submit-comment-btn');
         const originalText = submitBtn.textContent;
 
@@ -774,7 +778,7 @@
       });
     }
 
-    // Handle comment likes (only for authenticated users)
+    // Handle comment likes
     document.querySelectorAll('.comment-like-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         if (!window.isAuthenticated) {
@@ -786,7 +790,7 @@
       });
     });
 
-    // Handle reply button clicks (only for authenticated users)
+    // Handle reply button clicks
     document.querySelectorAll('.reply-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         if (!window.isAuthenticated) {
@@ -796,7 +800,7 @@
         const commentId = this.dataset.commentId;
         const replyForm = document.getElementById(`reply-form-${commentId}`);
 
-        if (replyForm.style.display === 'none') {
+        if (replyForm && replyForm.style.display === 'none') {
           // Hide all other reply forms
           document.querySelectorAll('.reply-form').forEach(form => {
             form.style.display = 'none';
@@ -804,13 +808,13 @@
 
           replyForm.style.display = 'block';
           replyForm.querySelector('.reply-input').focus();
-        } else {
+        } else if (replyForm) {
           replyForm.style.display = 'none';
         }
       });
     });
 
-    // Handle reply form submissions (only for authenticated users)
+    // Handle reply form submissions
     document.querySelectorAll('.reply-form-inner').forEach(form => {
       form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -821,11 +825,6 @@
         }
 
         const formData = new FormData(this);
-        // Add user ID for backend authentication
-        if (window.currentUserId) {
-          formData.append('user_id', window.currentUserId);
-        }
-
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
 
@@ -884,9 +883,6 @@
         this.disabled = true;
 
         let url = `/comments/load-more?post_id=${postId}&page=${nextPage}`;
-        if (isAuthenticated && window.currentUserId) {
-          url += `&user_id=${window.currentUserId}`;
-        }
 
         fetch(url, {
             headers: {
@@ -977,21 +973,55 @@
     }
   });
 
+  // Check authentication status using your existing endpoint
+  function checkAuthStatus() {
+    fetch('/auth/check', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Auth check response:', data);
+        if (data.authenticated && data.user) {
+            // User is authenticated
+            window.isAuthenticated = true;
+            window.currentUserId = data.user.id;
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
+            // Update UI if needed
+            if (typeof updateUIForAuthenticatedUser === 'function') {
+                updateUIForAuthenticatedUser(data.user);
+            }
+        } else {
+            // User is not authenticated
+            window.isAuthenticated = false;
+            window.currentUserId = null;
+            localStorage.removeItem('user');
+            
+            // Update UI if needed
+            if (typeof updateUIForGuestUser === 'function') {
+                updateUIForGuestUser();
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Auth check error:', error);
+        // Assume guest on error
+        window.isAuthenticated = false;
+        window.currentUserId = null;
+    });
+  }
+
   function toggleCommentLike(commentId, button) {
     if (!window.isAuthenticated) {
       showLoginPrompt();
       return;
     }
 
-    // Add user_id to the request
-    const formData = new FormData();
-    if (window.currentUserId) {
-      formData.append('user_id', window.currentUserId);
-    }
-
     fetch(`/comments/${commentId}/like`, {
         method: 'POST',
-        body: formData,
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -1163,10 +1193,6 @@
         }
 
         const formData = new FormData(this);
-        if (window.currentUserId) {
-          formData.append('user_id', window.currentUserId);
-        }
-
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
 

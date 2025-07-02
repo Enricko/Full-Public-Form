@@ -1,4 +1,3 @@
-// resources/views/index.blade.php
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
@@ -69,11 +68,11 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarContent">
-                <form class="d-flex ms-auto" id="navbar-search-form">
-                    <input class="form-control me-2" type="search" id="navbar-search-input" placeholder="Search..." aria-label="Search" />
+                <form class="d-flex ms-auto" action="{{ route('search') }}" method="GET">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Search..." aria-label="Search" />
                     <button class="btn btn-light" type="submit">Search</button>
                 </form>
-                
+
                 <!-- Guest Navigation -->
                 <div class="navbar-auth-guest login-btn register-btn" style="display: none;">
                     <button class="btn btn-outline-light ms-3" type="button" onclick="showLoginModal()">Login</button>
@@ -90,7 +89,9 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
                             <li><a class="dropdown-item" href="javascript:void(0)" onclick="loadPage('settings')"><i class="fas fa-cog me-2"></i>Settings</a></li>
-                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
                         </ul>
                     </div>
@@ -115,7 +116,6 @@
                             <li class="nav-item"><a class="nav-link" href="{{ route('profile') }}">👤 Profile</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('search') }}">🔍 Search</a></li>
                             <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="loadPage('settings')">⚙️ Settings</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ route('comment') }}">💬 Comment</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">ℹ️ About Us</a></li>
                         </ul>
                     </div>
@@ -217,22 +217,22 @@
         // Enhanced UI update functions for authentication
         function updateUIForAuthenticatedUser(user) {
             console.log('Updating UI for authenticated user:', user);
-            
+
             // Hide all guest elements (includes navbar buttons and sidebar)
             document.querySelectorAll('.login-btn, .register-btn, .navbar-auth-guest, .sidebar-guest').forEach(el => {
                 el.style.display = 'none';
             });
-            
+
             // Show all user elements
             document.querySelectorAll('.user-menu, .navbar-auth-user, .sidebar-authenticated').forEach(el => {
                 el.style.display = 'block';
             });
-            
+
             // Update user info in UI
             document.querySelectorAll('.user-display-name').forEach(el => {
                 el.textContent = user.display_name || user.username;
             });
-            
+
             document.querySelectorAll('.user-avatar').forEach(el => {
                 if (user.avatar_url) {
                     el.src = user.avatar_url.startsWith('http') ? user.avatar_url : `/storage/${user.avatar_url}`;
@@ -240,34 +240,34 @@
                     el.src = '/assets/images/profile.png';
                 }
             });
-            
+
             // Load authenticated content
             loadAuthenticatedContent();
         }
 
         function updateUIForGuestUser() {
             console.log('Updating UI for guest user');
-            
+
             // Show all guest elements (includes navbar buttons and sidebar)  
             document.querySelectorAll('.login-btn, .register-btn, .navbar-auth-guest, .sidebar-guest').forEach(el => {
                 el.style.display = 'block';
             });
-            
+
             // Hide all user elements
             document.querySelectorAll('.user-menu, .navbar-auth-user, .sidebar-authenticated').forEach(el => {
                 el.style.display = 'none';
             });
-            
+
             // Load guest content
             loadGuestContent();
         }
-        
+
         // Load content for authenticated users
         function loadAuthenticatedContent() {
             loadTrendingHashtags();
             loadSuggestedUsers();
         }
-        
+
         // Load content for guest users
         function loadGuestContent() {
             showFallbackTrending();
@@ -281,7 +281,7 @@
                 console.log('Sidebar initialized, waiting for auth check...');
             }
         };
-        
+
         // Load trending hashtags (for authenticated users only)
         function loadTrendingHashtags() {
             fetch('/trending-hashtags', {
@@ -349,7 +349,7 @@
                         <button class="follow-btn ${hashtag.is_following ? 'outline' : ''}" 
                                 onclick="${isAuthenticated ? `toggleHashtagFollow(${hashtag.id}, this)` : 'showLoginPrompt()'}"
                                 data-hashtag-id="${hashtag.id}">
-                            ${hashtag.is_following ? 'Mengikuti' : 'Ikuti'}
+                            ${hashtag.is_following ? 'Following' : 'Follow'}
                         </button>
                     </div>
                 </div>
@@ -364,11 +364,11 @@
             let html = '';
 
             users.forEach(user => {
-                const avatarUrl = user.avatar_url ? 
-                    (user.avatar_url.startsWith('http') ? user.avatar_url : `/storage/${user.avatar_url}`) : 
+                const avatarUrl = user.avatar_url ?
+                    (user.avatar_url.startsWith('http') ? user.avatar_url : `/storage/${user.avatar_url}`) :
                     '/assets/images/profile.png';
                 const isAuthenticated = localStorage.getItem('user') !== null;
-                
+
                 html += `
                 <div class="user">
                     <div class="user-avatar">
@@ -387,7 +387,7 @@
                         <button class="follow-btn ${user.is_following ? 'outline' : ''}" 
                                 onclick="${isAuthenticated ? `toggleUserFollow(${user.id}, this)` : 'showLoginPrompt()'}"
                                 data-user-id="${user.id}">
-                            ${user.is_following ? 'Mengikuti' : 'Ikuti'}
+                            ${user.is_following ? 'Following' : 'Follow'}
                         </button>
                     </div>
                 </div>
@@ -474,7 +474,7 @@
                     if (data.success) {
                         if (data.following) {
                             button.className = 'follow-btn outline';
-                            button.textContent = 'Mengikuti';
+                            button.textContent = 'Following';
                         } else {
                             button.className = 'follow-btn';
                             button.textContent = 'Ikuti';
@@ -513,7 +513,7 @@
                     if (data.success) {
                         if (data.following) {
                             button.className = 'follow-btn outline';
-                            button.textContent = 'Mengikuti';
+                            button.textContent = 'Following';
                         } else {
                             button.className = 'follow-btn';
                             button.textContent = 'Ikuti';
@@ -554,7 +554,7 @@
         }
 
         function showLoginPrompt() {
-            showNotification('Silakan login untuk mengikuti hashtag dan pengguna.', 'info');
+            showNotification('Silakan login untuk Following hashtag dan pengguna.', 'info');
             setTimeout(() => {
                 showLoginModal();
             }, 1500);

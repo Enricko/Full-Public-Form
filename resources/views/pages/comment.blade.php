@@ -25,7 +25,11 @@
       </div>
 
       <div class="follow-btn-container ms-auto">
-        <button class="follow-btn">Follow</button>
+        @if($isAuthenticated)
+          <button class="follow-btn">Follow</button>
+        @else
+          <button class="follow-btn" onclick="showLoginPrompt()">Follow</button>
+        @endif
       </div>
     </div>
 
@@ -128,28 +132,52 @@
 
     {{-- Post Actions --}}
     <div class="post-actions">
-      <button class="action-btn like-btn {{ $post->is_liked ? 'active' : '' }}"
-        data-post-id="{{ $post->id }}"
-        style="color: {{ $post->is_liked ? '#FA2C8B' : '' }}">
-        <i class="{{ $post->is_liked ? 'fas' : 'far' }} fa-heart"></i>
-        <span>Like</span>
-      </button>
+      @if($isAuthenticated)
+        <button class="action-btn like-btn {{ $post->is_liked ? 'active' : '' }}"
+          data-post-id="{{ $post->id }}"
+          style="color: {{ $post->is_liked ? '#FA2C8B' : '' }}">
+          <i class="{{ $post->is_liked ? 'fas' : 'far' }} fa-heart"></i>
+          <span>Like</span>
+        </button>
+      @else
+        <button class="action-btn like-btn" onclick="showLoginPrompt()">
+          <i class="far fa-heart"></i>
+          <span>Like</span>
+        </button>
+      @endif
+
       <button class="action-btn comment-btn" id="focus-comment-btn">
         <i class="far fa-comment"></i> <span>Comment</span>
       </button>
-      <button class="action-btn share-btn" data-post-id="{{ $post->id }}">
-        <i class="far fa-share-square"></i> <span>Share</span>
-      </button>
-      <button class="action-btn save-btn {{ $post->is_saved ? 'active' : '' }}"
-        data-post-id="{{ $post->id }}"
-        style="color: {{ $post->is_saved ? '#1DA1F2' : '' }}">
-        <i class="{{ $post->is_saved ? 'fas' : 'far' }} fa-bookmark"></i>
-        <span>Save</span>
-      </button>
+
+      @if($isAuthenticated)
+        <button class="action-btn share-btn" data-post-id="{{ $post->id }}">
+          <i class="far fa-share-square"></i> <span>Share</span>
+        </button>
+      @else
+        <button class="action-btn share-btn" onclick="showLoginPrompt()">
+          <i class="far fa-share-square"></i> <span>Share</span>
+        </button>
+      @endif
+
+      @if($isAuthenticated)
+        <button class="action-btn save-btn {{ $post->is_saved ? 'active' : '' }}"
+          data-post-id="{{ $post->id }}"
+          style="color: {{ $post->is_saved ? '#1DA1F2' : '' }}">
+          <i class="{{ $post->is_saved ? 'fas' : 'far' }} fa-bookmark"></i>
+          <span>Save</span>
+        </button>
+      @else
+        <button class="action-btn save-btn" onclick="showLoginPrompt()">
+          <i class="far fa-bookmark"></i>
+          <span>Save</span>
+        </button>
+      @endif
     </div>
   </div>
 
   {{-- Comment Form --}}
+  @if($isAuthenticated && $currentUser)
   <div class="comment-form">
     <img src="{{ $currentUser->avatar_url ?? asset('assets/images/profile.png') }}"
       alt="Profile" class="comment-avatar" />
@@ -169,6 +197,22 @@
       </form>
     </div>
   </div>
+  @else
+  {{-- Guest Comment Prompt --}}
+  <div class="comment-form guest-comment-prompt">
+    <div class="guest-prompt-content">
+      <img src="{{ asset('assets/images/profile.png') }}" alt="Profile" class="comment-avatar" />
+      <div class="guest-message">
+        <h5>Join the conversation!</h5>
+        <p>Sign in to share your thoughts and engage with the community.</p>
+        <div class="guest-actions">
+          <button class="btn btn-danger" onclick="showLoginModal()">Login</button>
+          <button class="btn btn-outline-danger" onclick="showRegisterModal()">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  @endif
 
   {{-- Comments Section --}}
   <div class="comments-section">
@@ -194,17 +238,28 @@
             </div>
             <div class="comment-text">{{ $comment->content }}</div>
             <div class="comment-actions">
-              <button class="comment-action comment-like-btn {{ $comment->is_liked ? 'liked' : '' }}"
-                data-comment-id="{{ $comment->id }}">
-                <i class="{{ $comment->is_liked ? 'fas' : 'far' }} fa-heart"></i>
-                <span>{{ $comment->like_count }}</span>
-              </button>
-              <button class="comment-action reply-btn" data-comment-id="{{ $comment->id }}">
-                <i class="far fa-comment"></i> Reply
-              </button>
+              @if($isAuthenticated)
+                <button class="comment-action comment-like-btn {{ $comment->is_liked ? 'liked' : '' }}"
+                  data-comment-id="{{ $comment->id }}">
+                  <i class="{{ $comment->is_liked ? 'fas' : 'far' }} fa-heart"></i>
+                  <span>{{ $comment->like_count }}</span>
+                </button>
+                <button class="comment-action reply-btn" data-comment-id="{{ $comment->id }}">
+                  <i class="far fa-comment"></i> Reply
+                </button>
+              @else
+                <button class="comment-action comment-like-btn-guest" onclick="showLoginPrompt()">
+                  <i class="far fa-heart"></i>
+                  <span>{{ $comment->like_count }}</span>
+                </button>
+                <button class="comment-action reply-btn-guest" onclick="showLoginPrompt()">
+                  <i class="far fa-comment"></i> Reply
+                </button>
+              @endif
             </div>
 
-            {{-- Reply Form (initially hidden) --}}
+            {{-- Reply Form (only for authenticated users) --}}
+            @if($isAuthenticated)
             <div class="reply-form" id="reply-form-{{ $comment->id }}" style="display: none;">
               <form class="reply-form-inner" data-parent-id="{{ $comment->id }}">
                 @csrf
@@ -224,6 +279,7 @@
                 </div>
               </form>
             </div>
+            @endif
 
             {{-- Replies --}}
             @if($comment->replies && $comment->replies->count() > 0)
@@ -242,11 +298,18 @@
                   </div>
                   <div class="comment-text">{{ $reply->content }}</div>
                   <div class="comment-actions">
-                    <button class="comment-action comment-like-btn {{ $reply->is_liked ? 'liked' : '' }}"
-                      data-comment-id="{{ $reply->id }}">
-                      <i class="{{ $reply->is_liked ? 'fas' : 'far' }} fa-heart"></i>
-                      <span>{{ $reply->like_count }}</span>
-                    </button>
+                    @if($isAuthenticated)
+                      <button class="comment-action comment-like-btn {{ $reply->is_liked ? 'liked' : '' }}"
+                        data-comment-id="{{ $reply->id }}">
+                        <i class="{{ $reply->is_liked ? 'fas' : 'far' }} fa-heart"></i>
+                        <span>{{ $reply->like_count }}</span>
+                      </button>
+                    @else
+                      <button class="comment-action comment-like-btn-guest" onclick="showLoginPrompt()">
+                        <i class="far fa-heart"></i>
+                        <span>{{ $reply->like_count }}</span>
+                      </button>
+                    @endif
                   </div>
                 </div>
               </div>
@@ -263,7 +326,8 @@
     @if($comments->hasMorePages())
     <div class="load-more-comments">
       <button class="load-more-btn" data-next-page="{{ $comments->currentPage() + 1 }}"
-        data-post-id="{{ $post->id }}">
+        data-post-id="{{ $post->id }}"
+        data-is-authenticated="{{ $isAuthenticated ? 'true' : 'false' }}">
         Load More Comments
       </button>
     </div>
@@ -280,6 +344,7 @@
 
 {{-- Add your existing CSS styles --}}
 <style>
+  /* Previous styles remain the same... */
   .comments-section {
     background-color: #ffffff;
     border-radius: 12px;
@@ -423,6 +488,59 @@
 
   .comment-action.liked {
     color: #e0245e;
+  }
+
+  /* Guest-specific styles */
+  .comment-like-btn-guest,
+  .reply-btn-guest {
+    opacity: 0.7;
+    cursor: pointer;
+  }
+
+  .comment-like-btn-guest:hover,
+  .reply-btn-guest:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    opacity: 1;
+  }
+
+  .guest-comment-prompt {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 2px dashed #dee2e6;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .guest-prompt-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .guest-message {
+    flex: 1;
+  }
+
+  .guest-message h5 {
+    margin-bottom: 8px;
+    color: #495057;
+    font-weight: 600;
+  }
+
+  .guest-message p {
+    margin-bottom: 16px;
+    color: #6c757d;
+    font-size: 14px;
+  }
+
+  .guest-actions {
+    display: flex;
+    gap: 12px;
   }
 
   .comment-replies {
@@ -590,18 +708,36 @@
     .comment-actions {
       gap: 16px;
     }
+
+    .guest-prompt-content {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .guest-actions {
+      justify-content: center;
+    }
   }
 </style>
 
 <script>
+  // Global variables
+  window.isAuthenticated = {{ $isAuthenticated ? 'true' : 'false' }};
+  window.currentUserId = {{ $isAuthenticated ? ($currentUser->id ?? 'null') : 'null' }};
+
   document.addEventListener('DOMContentLoaded', function() {
-    // Handle comment form submission
+    // Handle comment form submission (only for authenticated users)
     const commentForm = document.getElementById('comment-form');
-    if (commentForm) {
+    if (commentForm && window.isAuthenticated) {
       commentForm.addEventListener('submit', function(e) {
         e.preventDefault();
 
         const formData = new FormData(this);
+        // Add user ID for backend authentication
+        if (window.currentUserId) {
+          formData.append('user_id', window.currentUserId);
+        }
+
         const submitBtn = this.querySelector('.submit-comment-btn');
         const originalText = submitBtn.textContent;
 
@@ -621,16 +757,15 @@
             if (data.success) {
               // Clear form
               this.querySelector('.comment-input').value = '';
-
               // Reload page to show new comment
               window.location.reload();
             } else {
-              alert('Error posting comment');
+              showNotification(data.message || 'Error posting comment', 'error');
             }
           })
           .catch(error => {
             console.error('Error:', error);
-            alert('Error posting comment');
+            showNotification('Error posting comment', 'error');
           })
           .finally(() => {
             submitBtn.textContent = originalText;
@@ -639,17 +774,25 @@
       });
     }
 
-    // Handle comment likes
+    // Handle comment likes (only for authenticated users)
     document.querySelectorAll('.comment-like-btn').forEach(btn => {
       btn.addEventListener('click', function() {
+        if (!window.isAuthenticated) {
+          showLoginPrompt();
+          return;
+        }
         const commentId = this.dataset.commentId;
         toggleCommentLike(commentId, this);
       });
     });
 
-    // Handle reply button clicks
+    // Handle reply button clicks (only for authenticated users)
     document.querySelectorAll('.reply-btn').forEach(btn => {
       btn.addEventListener('click', function() {
+        if (!window.isAuthenticated) {
+          showLoginPrompt();
+          return;
+        }
         const commentId = this.dataset.commentId;
         const replyForm = document.getElementById(`reply-form-${commentId}`);
 
@@ -667,12 +810,22 @@
       });
     });
 
-    // Handle reply form submissions
+    // Handle reply form submissions (only for authenticated users)
     document.querySelectorAll('.reply-form-inner').forEach(form => {
       form.addEventListener('submit', function(e) {
         e.preventDefault();
 
+        if (!window.isAuthenticated) {
+          showLoginPrompt();
+          return;
+        }
+
         const formData = new FormData(this);
+        // Add user ID for backend authentication
+        if (window.currentUserId) {
+          formData.append('user_id', window.currentUserId);
+        }
+
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
 
@@ -693,16 +846,15 @@
               // Clear form and hide it
               this.querySelector('.reply-input').value = '';
               this.closest('.reply-form').style.display = 'none';
-
               // Reload page to show new reply
               window.location.reload();
             } else {
-              alert('Error posting reply');
+              showNotification(data.message || 'Error posting reply', 'error');
             }
           })
           .catch(error => {
             console.error('Error:', error);
-            alert('Error posting reply');
+            showNotification('Error posting reply', 'error');
           })
           .finally(() => {
             submitBtn.textContent = originalText;
@@ -726,11 +878,17 @@
       loadMoreBtn.addEventListener('click', function() {
         const nextPage = this.dataset.nextPage;
         const postId = this.dataset.postId;
+        const isAuthenticated = this.dataset.isAuthenticated === 'true';
 
         this.textContent = 'Loading...';
         this.disabled = true;
 
-        fetch(`/comments/load-more?post_id=${postId}&page=${nextPage}`, {
+        let url = `/comments/load-more?post_id=${postId}&page=${nextPage}`;
+        if (isAuthenticated && window.currentUserId) {
+          url += `&user_id=${window.currentUserId}`;
+        }
+
+        fetch(url, {
             headers: {
               'X-Requested-With': 'XMLHttpRequest'
             }
@@ -742,7 +900,7 @@
               const container = document.getElementById('comments-container');
 
               data.comments.forEach(comment => {
-                const commentHtml = createCommentHtml(comment);
+                const commentHtml = createCommentHtml(comment, data.is_authenticated);
                 container.insertAdjacentHTML('beforeend', commentHtml);
               });
 
@@ -774,7 +932,7 @@
       });
     }
 
-    // Handle post actions
+    // Handle post actions (like, save, share)
     if (typeof PostInteractions !== 'undefined') {
       PostInteractions.init();
     }
@@ -803,6 +961,10 @@
     const focusCommentBtn = document.getElementById('focus-comment-btn');
     if (focusCommentBtn) {
       focusCommentBtn.addEventListener('click', function() {
+        if (!window.isAuthenticated) {
+          showLoginPrompt();
+          return;
+        }
         const commentInput = document.querySelector('.comment-input');
         if (commentInput) {
           commentInput.focus();
@@ -816,8 +978,20 @@
   });
 
   function toggleCommentLike(commentId, button) {
+    if (!window.isAuthenticated) {
+      showLoginPrompt();
+      return;
+    }
+
+    // Add user_id to the request
+    const formData = new FormData();
+    if (window.currentUserId) {
+      formData.append('user_id', window.currentUserId);
+    }
+
     fetch(`/comments/${commentId}/like`, {
         method: 'POST',
+        body: formData,
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
           'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
@@ -840,80 +1014,110 @@
           }
 
           count.textContent = data.like_count;
+        } else {
+          showNotification(data.message || 'Error liking comment', 'error');
         }
       })
-      .catch(error => console.error('Error:', error));
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error liking comment', 'error');
+      });
   }
 
-  function createCommentHtml(comment) {
-    const repliesHtml = comment.replies ? comment.replies.map(reply => `
-       <div class="comment-reply" data-comment-id="${reply.id}">
-           <div class="comment-avatar">
-               <img src="${reply.user.avatar_url || '/assets/images/profile.png'}" alt="${reply.user.username}" />
-           </div>
-           <div class="comment-content">
-               <div class="comment-header">
-                   <a href="#" class="comment-author">${reply.user.username}</a>
-                   <span class="comment-username">${reply.user.display_name || ''}</span>
-                   <span class="comment-timestamp">${reply.created_at}</span>
-               </div>
-               <div class="comment-text">${reply.content}</div>
-               <div class="comment-actions">
-                   <button class="comment-action comment-like-btn ${reply.is_liked ? 'liked' : ''}" data-comment-id="${reply.id}">
-                       <i class="${reply.is_liked ? 'fas' : 'far'} fa-heart"></i>
-                       <span>${reply.like_count}</span>
-                   </button>
-               </div>
-           </div>
-       </div>
-   `).join('') : '';
+  function createCommentHtml(comment, isAuthenticated) {
+    const repliesHtml = comment.replies ? comment.replies.map(reply => {
+      const replyActions = isAuthenticated ? `
+        <button class="comment-action comment-like-btn ${reply.is_liked ? 'liked' : ''}" data-comment-id="${reply.id}">
+          <i class="${reply.is_liked ? 'fas' : 'far'} fa-heart"></i>
+          <span>${reply.like_count}</span>
+        </button>
+      ` : `
+        <button class="comment-action comment-like-btn-guest" onclick="showLoginPrompt()">
+          <i class="far fa-heart"></i>
+          <span>${reply.like_count}</span>
+        </button>
+      `;
+
+      return `
+        <div class="comment-reply" data-comment-id="${reply.id}">
+          <div class="comment-avatar">
+            <img src="${reply.user.avatar_url || '/assets/images/profile.png'}" alt="${reply.user.username}" />
+          </div>
+          <div class="comment-content">
+            <div class="comment-header">
+              <a href="#" class="comment-author">${reply.user.username}</a>
+              <span class="comment-username">${reply.user.display_name || ''}</span>
+              <span class="comment-timestamp">${reply.created_at}</span>
+            </div>
+            <div class="comment-text">${reply.content}</div>
+            <div class="comment-actions">
+              ${replyActions}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('') : '';
+
+    const commentActions = isAuthenticated ? `
+      <button class="comment-action comment-like-btn ${comment.is_liked ? 'liked' : ''}" data-comment-id="${comment.id}">
+        <i class="${comment.is_liked ? 'fas' : 'far'} fa-heart"></i>
+        <span>${comment.like_count}</span>
+      </button>
+      <button class="comment-action reply-btn" data-comment-id="${comment.id}">
+        <i class="far fa-comment"></i> Reply
+      </button>
+    ` : `
+      <button class="comment-action comment-like-btn-guest" onclick="showLoginPrompt()">
+        <i class="far fa-heart"></i>
+        <span>${comment.like_count}</span>
+      </button>
+      <button class="comment-action reply-btn-guest" onclick="showLoginPrompt()">
+        <i class="far fa-comment"></i> Reply
+      </button>
+    `;
+
+    const replyForm = isAuthenticated ? `
+      <div class="reply-form" id="reply-form-${comment.id}" style="display: none;">
+        <form class="reply-form-inner" data-parent-id="${comment.id}">
+          <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+          <input type="hidden" name="post_id" value="${comment.post_id}">
+          <input type="hidden" name="parent_comment_id" value="${comment.id}">
+          <div class="d-flex gap-2">
+            <img src="/assets/images/profile.png" alt="Profile" class="reply-avatar" />
+            <div class="flex-grow-1">
+              <textarea name="content" class="reply-input" placeholder="Write a reply..." required></textarea>
+              <div class="reply-actions mt-2">
+                <button type="button" class="btn btn-sm btn-secondary cancel-reply">Cancel</button>
+                <button type="submit" class="btn btn-sm btn-primary">Reply</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    ` : '';
 
     return `
-       <div class="comment-thread">
-           <div class="comment-item" data-comment-id="${comment.id}">
-               <div class="comment-avatar">
-                   <img src="${comment.user.avatar_url || '/assets/images/profile.png'}" alt="${comment.user.username}" />
-               </div>
-               <div class="comment-content">
-                   <div class="comment-header">
-                       <a href="#" class="comment-author">${comment.user.username}</a>
-                       <span class="comment-username">${comment.user.display_name || ''}</span>
-                       <span class="comment-timestamp">${comment.created_at}</span>
-                   </div>
-                   <div class="comment-text">${comment.content}</div>
-                   <div class="comment-actions">
-                       <button class="comment-action comment-like-btn ${comment.is_liked ? 'liked' : ''}" data-comment-id="${comment.id}">
-                           <i class="${comment.is_liked ? 'fas' : 'far'} fa-heart"></i>
-                           <span>${comment.like_count}</span>
-                       </button>
-                       <button class="comment-action reply-btn" data-comment-id="${comment.id}">
-                           <i class="far fa-comment"></i> Reply
-                       </button>
-                   </div>
-                   
-                   <div class="reply-form" id="reply-form-${comment.id}" style="display: none;">
-                       <form class="reply-form-inner" data-parent-id="${comment.id}">
-                           <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
-                           <input type="hidden" name="post_id" value="${comment.post_id}">
-                           <input type="hidden" name="parent_comment_id" value="${comment.id}">
-                           <div class="d-flex gap-2">
-                               <img src="/assets/images/profile.png" alt="Profile" class="reply-avatar" />
-                               <div class="flex-grow-1">
-                                   <textarea name="content" class="reply-input" placeholder="Write a reply..." required></textarea>
-                                   <div class="reply-actions mt-2">
-                                       <button type="button" class="btn btn-sm btn-secondary cancel-reply">Cancel</button>
-                                       <button type="submit" class="btn btn-sm btn-primary">Reply</button>
-                                   </div>
-                               </div>
-                           </div>
-                       </form>
-                   </div>
-                   
-                   ${repliesHtml ? `<div class="comment-replies">${repliesHtml}</div>` : ''}
-               </div>
-           </div>
-       </div>
-   `;
+      <div class="comment-thread">
+        <div class="comment-item" data-comment-id="${comment.id}">
+          <div class="comment-avatar">
+            <img src="${comment.user.avatar_url || '/assets/images/profile.png'}" alt="${comment.user.username}" />
+          </div>
+          <div class="comment-content">
+            <div class="comment-header">
+              <a href="#" class="comment-author">${comment.user.username}</a>
+              <span class="comment-username">${comment.user.display_name || ''}</span>
+              <span class="comment-timestamp">${comment.created_at}</span>
+            </div>
+            <div class="comment-text">${comment.content}</div>
+            <div class="comment-actions">
+              ${commentActions}
+            </div>
+            ${replyForm}
+            ${repliesHtml ? `<div class="comment-replies">${repliesHtml}</div>` : ''}
+          </div>
+        </div>
+      </div>
+    `;
   }
 
   function initializeCommentInteractions() {
@@ -928,6 +1132,10 @@
 
     document.querySelectorAll('.reply-btn:not([data-initialized])').forEach(btn => {
       btn.addEventListener('click', function() {
+        if (!window.isAuthenticated) {
+          showLoginPrompt();
+          return;
+        }
         const commentId = this.dataset.commentId;
         const replyForm = document.getElementById(`reply-form-${commentId}`);
 
@@ -949,7 +1157,16 @@
       form.addEventListener('submit', function(e) {
         e.preventDefault();
 
+        if (!window.isAuthenticated) {
+          showLoginPrompt();
+          return;
+        }
+
         const formData = new FormData(this);
+        if (window.currentUserId) {
+          formData.append('user_id', window.currentUserId);
+        }
+
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
 
@@ -971,12 +1188,12 @@
               this.closest('.reply-form').style.display = 'none';
               window.location.reload();
             } else {
-              alert('Error posting reply');
+              showNotification(data.message || 'Error posting reply', 'error');
             }
           })
           .catch(error => {
             console.error('Error:', error);
-            alert('Error posting reply');
+            showNotification('Error posting reply', 'error');
           })
           .finally(() => {
             submitBtn.textContent = originalText;
@@ -1010,6 +1227,35 @@
         video.play().catch(console.error);
       }
     }
+  }
+
+  // Auth-related functions
+  function showLoginPrompt() {
+    showNotification('Please log in to interact with posts and comments.', 'info');
+    setTimeout(() => {
+      if (typeof showLoginModal === 'function') {
+        showLoginModal();
+      }
+    }, 1500);
+  }
+
+  function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : type === 'error' ? 'danger' : 'info'} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+    notification.innerHTML = `
+      <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'} me-2"></i>
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 5000);
   }
 </script>
 

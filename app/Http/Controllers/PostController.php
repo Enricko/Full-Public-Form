@@ -15,8 +15,6 @@ use App\Models\Hashtag;
 
 class PostController extends Controller
 {
-    private $userId = 6;  
-
     /**
      * Show the form for creating a new post
      */
@@ -30,6 +28,18 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        // Check if user is authenticated
+        $user = $request->user();
+        if (!$user) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Authentication required'
+                ], 401);
+            }
+            return redirect()->route('home')->with('error', 'Please login to create posts');
+        }
+
         // Validate the request
         $request->validate([
             'content' => 'required|string|max:500',
@@ -40,15 +50,6 @@ class PostController extends Controller
 
         try {
             DB::beginTransaction();
-
-            // Get the user (using dummy user ID 6)
-            $user = User::find($this->userId);
-            if (!$user) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'User not found'
-                ], 404);
-            }
 
             // Create the post
             $post = Post::create([
@@ -116,6 +117,121 @@ class PostController extends Controller
             // For regular form submission, redirect back with error
             return redirect()->back()->withErrors(['error' => 'Error creating post: ' . $e->getMessage()])->withInput();
         }
+    }
+
+    public function like(Request $request, Post $post)
+    {
+        // Check if user is authenticated
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please login to like posts'
+            ], 401);
+        }
+
+        // Check for existing like (only for posts, not comments)
+        $existingLike = Like::where('user_id', $user->id)
+            ->where('post_id', $post->id)
+            ->whereNull('comment_id') // Important: only post likes
+            ->first();
+
+        if ($existingLike) {
+            $existingLike->delete();
+            $post->decrement('like_count');
+            $liked = false;
+            $message = 'Post unliked';
+        } else {
+            Like::create([
+                'user_id' => $user->id,
+                'post_id' => $post->id,
+                'comment_id' => null // Important: set comment_id to null for post likes
+            ]);
+            $post->increment('like_count');
+            $liked = true;
+            $message = 'Post liked';
+        }
+
+        return response()->json([
+            'success' => true,
+            'liked' => $liked,
+            'like_count' => $post->fresh()->like_count,
+            'message' => $message
+        ]);
+    }
+
+    public function save(Request $request, Post $post)
+    {
+        // Check if user is authenticated
+        $user = $request->user();
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please login to save posts'
+            ], 401);
+        }
+
+        // Use your many-to-many relationship
+        $isSaved = $user->savedPosts()->where('post_id', $post->id)->exists();
+
+        if ($isSaved) {
+            $user->savedPosts()->detach($post->id);
+            $saved = false;
+            $message = 'Post removed from saved';
+        } else {
+            $user->savedPosts()->attach($post->id, [
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+            $saved = true;
+            $message = 'Post saved';
+        }
+
+        return response()->json([
+            'success' => true,
+            'saved' => $saved,
+            'message' => $message
+        ]);
+    }
+
+    public function share(Request $request, Post $post)
+    {
+        // Allow sharing for both authenticated and guest users
+        // But you might want to track who shared it if authenticated
+        $user = $request->user();
+        
+        $post->increment('share_count');
+
+        $message = $user ? 'Post shared' : 'Post shared';
+
+        return response()->json([
+            'success' => true,
+            'share_count' => $post->fresh()->share_count,
+            'message' => $message
+        ]);
+    }
+
+    public function show(Request $request, Post $post)
+    {
+        $post->load([
+            'user:id,username,display_name,avatar_url',
+            'attachments' => function ($query) {
+                $query->orderBy('upload_order');
+            },
+            'hashtags'
+        ]);
+
+        // Add interaction status based on authentication
+        $user = $request->user();
+        if ($user) {
+            $post->is_liked = $post->likes()->where('user_id', $user->id)->exists();
+            $post->is_saved = $user->savedPosts()->where('post_id', $post->id)->exists();
+        } else {
+            $post->is_liked = false;
+            $post->is_saved = false;
+        }
+
+        return view('posts.show', compact('post'));
     }
 
     /**
@@ -198,117 +314,6 @@ class PostController extends Controller
         ]);
     }
 
-    // ... (keep all your existing methods: like, save, share, show, index, etc.)
-    
-    public function like(Post $post)
-    {
-        // Use dummy user ID 6 instead of Auth::user()
-        $user = User::find($this->userId);
-        
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found'
-            ], 404);
-        }
-
-        // Check for existing like (only for posts, not comments)
-        $existingLike = Like::where('user_id', $user->id)
-            ->where('post_id', $post->id)
-            ->whereNull('comment_id') // Important: only post likes
-            ->first();
-
-        if ($existingLike) {
-            $existingLike->delete();
-            $post->decrement('like_count');
-            $liked = false;
-            $message = 'Post unliked';
-        } else {
-            Like::create([
-                'user_id' => $user->id,
-                'post_id' => $post->id,
-                'comment_id' => null // Important: set comment_id to null for post likes
-            ]);
-            $post->increment('like_count');
-            $liked = true;
-            $message = 'Post liked';
-        }
-
-        return response()->json([
-            'success' => true,
-            'liked' => $liked,
-            'like_count' => $post->fresh()->like_count,
-            'message' => $message
-        ]);
-    }
-
-    public function save(Post $post)
-    {
-        // Use dummy user ID 6 instead of Auth::user()
-        $user = User::find($this->userId);
-        
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found'
-            ], 404);
-        }
-
-        // Use your many-to-many relationship
-        $isSaved = $user->savedPosts()->where('post_id', $post->id)->exists();
-
-        if ($isSaved) {
-            $user->savedPosts()->detach($post->id);
-            $saved = false;
-            $message = 'Post removed from saved';
-        } else {
-            $user->savedPosts()->attach($post->id, [
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
-            $saved = true;
-            $message = 'Post saved';
-        }
-
-        return response()->json([
-            'success' => true,
-            'saved' => $saved,
-            'message' => $message
-        ]);
-    }
-
-    public function share(Post $post)
-    {
-        $post->increment('share_count');
-
-        return response()->json([
-            'success' => true,
-            'share_count' => $post->fresh()->share_count,
-            'message' => 'Post shared'
-        ]);
-    }
-
-    public function show(Post $post)
-    {
-        $post->load([
-            'user:id,username,display_name,avatar_url',
-            'attachments' => function ($query) {
-                $query->orderBy('upload_order');
-            },
-            'comments.user:id,username,display_name,avatar_url',
-            'comments.replies.user:id,username,display_name,avatar_url'
-        ]);
-
-        // Add interaction status for dummy user
-        $user = User::find($this->userId);
-        if ($user) {
-            $post->is_liked = $post->isLikedBy($user);
-            $post->is_saved = $post->isSavedBy($user);
-        }
-
-        return view('posts.show', compact('post'));
-    }
-
     /**
      * Get posts for home feed (if you need this)
      */
@@ -323,13 +328,18 @@ class PostController extends Controller
         ->latest()
         ->paginate(10);
 
-        // Add interaction status for dummy user
-        $user = User::find($this->userId);
+        // Add interaction status based on authentication
+        $user = $request->user();
         if ($user) {
             $posts->getCollection()->transform(function ($post) use ($user) {
-                $post->is_liked = $post->isLikedBy($user);
-                $post->is_saved = $post->isSavedBy($user);
-                
+                $post->is_liked = $post->likes()->where('user_id', $user->id)->exists();
+                $post->is_saved = $user->savedPosts()->where('post_id', $post->id)->exists();
+                return $post;
+            });
+        } else {
+            $posts->getCollection()->transform(function ($post) {
+                $post->is_liked = false;
+                $post->is_saved = false;
                 return $post;
             });
         }
@@ -353,16 +363,16 @@ class PostController extends Controller
     /**
      * Toggle like (alternative method name for compatibility)
      */
-    public function toggleLike(Post $post)
+    public function toggleLike(Request $request, Post $post)
     {
-        return $this->like($post);
+        return $this->like($request, $post);
     }
 
     /**
      * Toggle save (alternative method name for compatibility)
      */
-    public function toggleSave(Post $post)
+    public function toggleSave(Request $request, Post $post)
     {
-        return $this->save($post);
+        return $this->save($request, $post);
     }
 }

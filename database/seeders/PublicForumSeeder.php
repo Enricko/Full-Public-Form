@@ -73,7 +73,7 @@ class PublicForumSeeder extends Seeder
             'display_name' => 'Administrator',
             'role' => 'admin',
             'bio' => 'This is the admin user for the PublicForum. Here to manage everything!',
-            'avatar_url' => $this->faker->imageUrl(150, 150, 'people'),
+            'avatar_url' => null,
             'created_at' => now()->subDays(rand(30, 365)),
         ]);
         $this->users[] = $adminUser;
@@ -138,7 +138,7 @@ class PublicForumSeeder extends Seeder
                 'display_name' => $userData['display_name'],
                 'role' => $userData['role'],
                 'bio' => $userData['bio'],
-                'avatar_url' => $this->faker->imageUrl(150, 150, 'people'),
+                'avatar_url' => null,
                 'created_at' => now()->subDays(rand(30, 365)),
             ]);
             $this->users[] = $user;
@@ -155,7 +155,7 @@ class PublicForumSeeder extends Seeder
                 'display_name' => $this->faker->name,
                 'bio' => $this->faker->sentence(rand(5, 15)),
                 'role' => $this->faker->randomElement(['user', 'user', 'user', 'user', 'admin']), // 80% users, 20% admin
-                'avatar_url' => $this->faker->imageUrl(150, 150, 'people'),
+                'avatar_url' => null,
                 'created_at' => now()->subDays(rand(1, 365)),
             ]);
             $this->users[] = $user;

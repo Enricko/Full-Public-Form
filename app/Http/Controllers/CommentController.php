@@ -32,10 +32,19 @@ class CommentController extends Controller
             return redirect()->route('home')->with('error', 'Post not found');
         }
 
-        // Check if current user has liked/saved the post (using user ID 6 for testing)
-        $currentUserId = 6;
-        $post->is_liked = $post->likes()->where('user_id', $currentUserId)->exists();
-        $post->is_saved = $post->savedByUsers()->where('user_id', $currentUserId)->exists();
+        // Check if user is authenticated (from localStorage via session/cookie)
+        $currentUserId = $this->getCurrentUserId($request);
+        $isAuthenticated = !is_null($currentUserId);
+
+        // Set default interaction states
+        $post->is_liked = false;
+        $post->is_saved = false;
+
+        // Only check interactions if user is authenticated
+        if ($isAuthenticated) {
+            $post->is_liked = $post->likes()->where('user_id', $currentUserId)->exists();
+            $post->is_saved = $post->savedByUsers()->where('user_id', $currentUserId)->exists();
+        }
 
         // Get comments with pagination
         $comments = Comment::with(['user', 'replies.user'])
@@ -44,24 +53,39 @@ class CommentController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        // Add liked status for each comment and reply
+        // Add liked status for each comment and reply (only if authenticated)
         foreach ($comments as $comment) {
-            $comment->is_liked = $comment->likes()->where('user_id', $currentUserId)->exists();
+            $comment->is_liked = $isAuthenticated ? 
+                $comment->likes()->where('user_id', $currentUserId)->exists() : false;
 
             // Check replies too
             foreach ($comment->replies as $reply) {
-                $reply->is_liked = $reply->likes()->where('user_id', $currentUserId)->exists();
+                $reply->is_liked = $isAuthenticated ? 
+                    $reply->likes()->where('user_id', $currentUserId)->exists() : false;
             }
         }
 
-        // Get current user for form
-        $currentUser = User::find($currentUserId);
+        // Get current user for form (null if guest)
+        $currentUser = $isAuthenticated ? User::find($currentUserId) : null;
 
-        return view('pages.comment', compact('post', 'comments', 'currentUser'));
+        return view('pages.comment', compact('post', 'comments', 'currentUser', 'isAuthenticated'));
     }
 
     public function store(Request $request)
     {
+        // Check if user is authenticated
+        $currentUserId = $this->getCurrentUserId($request);
+        
+        if (!$currentUserId) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to comment'
+                ], 401);
+            }
+            return redirect()->back()->with('error', 'You must be logged in to comment');
+        }
+
         $request->validate([
             'post_id' => 'required|exists:posts,id',
             'content' => 'required|string|max:1000',
@@ -70,7 +94,7 @@ class CommentController extends Controller
 
         $comment = Comment::create([
             'post_id' => $request->post_id,
-            'user_id' => 6, // Hardcoded for testing
+            'user_id' => $currentUserId,
             'parent_comment_id' => $request->parent_comment_id,
             'content' => $request->content,
             'like_count' => 0
@@ -94,10 +118,21 @@ class CommentController extends Controller
 
     public function like(Request $request, Comment $comment)
     {
-        $userId = 6; // Hardcoded for testing
+        // Check if user is authenticated
+        $currentUserId = $this->getCurrentUserId($request);
+        
+        if (!$currentUserId) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to like comments'
+                ], 401);
+            }
+            return redirect()->back()->with('error', 'You must be logged in to like comments');
+        }
 
         $existingLike = Like::where([
-            'user_id' => $userId,
+            'user_id' => $currentUserId,
             'comment_id' => $comment->id
         ])->first();
 
@@ -107,7 +142,7 @@ class CommentController extends Controller
             $liked = false;
         } else {
             Like::create([
-                'user_id' => $userId,
+                'user_id' => $currentUserId,
                 'comment_id' => $comment->id
             ]);
             $comment->increment('like_count');
@@ -136,13 +171,18 @@ class CommentController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10, ['*'], 'page', $page);
 
-        // Add liked status
-        $currentUserId = 6;
+        // Check if user is authenticated
+        $currentUserId = $this->getCurrentUserId($request);
+        $isAuthenticated = !is_null($currentUserId);
+
+        // Add liked status (only if authenticated)
         foreach ($comments as $comment) {
-            $comment->is_liked = $comment->likes()->where('user_id', $currentUserId)->exists();
+            $comment->is_liked = $isAuthenticated ? 
+                $comment->likes()->where('user_id', $currentUserId)->exists() : false;
 
             foreach ($comment->replies as $reply) {
-                $reply->is_liked = $reply->likes()->where('user_id', $currentUserId)->exists();
+                $reply->is_liked = $isAuthenticated ? 
+                    $reply->likes()->where('user_id', $currentUserId)->exists() : false;
             }
         }
 
@@ -151,10 +191,49 @@ class CommentController extends Controller
                 'success' => true,
                 'comments' => $comments->items(),
                 'has_more' => $comments->hasMorePages(),
-                'next_page' => $comments->currentPage() + 1
+                'next_page' => $comments->currentPage() + 1,
+                'is_authenticated' => $isAuthenticated
             ]);
         }
 
         return redirect()->back();
+    }
+
+    /**
+     * Get current user ID from request (checking various sources)
+     */
+    private function getCurrentUserId(Request $request)
+    {
+        // Method 1: Check if user_id is passed in request (from frontend)
+        if ($request->has('user_id') && $request->user_id) {
+            return $request->user_id;
+        }
+
+        // Method 2: Check session for stored user ID
+        if (session('user_id')) {
+            return session('user_id');
+        }
+
+        // Method 3: Check for Authorization header or token
+        $authHeader = $request->header('Authorization');
+        if ($authHeader && str_starts_with($authHeader, 'Bearer ')) {
+            $token = substr($authHeader, 7);
+            // Here you would decode/validate the token and get user ID
+            // For now, return null if no token validation is implemented
+        }
+
+        // Method 4: Check cookie (if you store user info in cookies)
+        if ($request->cookie('user_id')) {
+            return $request->cookie('user_id');
+        }
+
+        // Method 5: Fallback to hardcoded for testing (remove in production)
+        // You can remove this in production
+        if (config('app.env') === 'local') {
+            // Only return hardcoded ID if explicitly testing
+            // return 6;
+        }
+
+        return null; // Guest user
     }
 }

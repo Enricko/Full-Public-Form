@@ -9,19 +9,29 @@ use App\Models\Post;
 use App\Models\Like;
 use App\Models\SavedPost;
 use App\Models\Comment;
+use App\Models\UserSession;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
-    // Default user ID (can be overridden by route parameter)
-    private $defaultUserId = 6;
-
     public function index(Request $request, $userId = null)
     {
-        // Use provided userId or default to 6
-        $targetUserId = $userId ?? $this->defaultUserId;
+        // Check authentication using existing system
+        $authData = $this->checkAuthentication($request);
+        $isAuthenticated = $authData['authenticated'];
+        $currentUser = $authData['user'];
+
+        // If no userId provided, show current user's profile (if authenticated)
+        if (!$userId) {
+            if (!$isAuthenticated || !$currentUser) {
+                return redirect()->route('login')->with('error', 'Please log in to view your profile');
+            }
+            $targetUserId = $currentUser->id;
+        } else {
+            $targetUserId = $userId;
+        }
 
         $user = User::where('id', $targetUserId)->first();
 
@@ -30,12 +40,11 @@ class ProfileController extends Controller
         }
 
         // Check if this is the current user's own profile (for edit permissions)
-        $isOwnProfile = $targetUserId == $this->defaultUserId;
+        $isOwnProfile = $isAuthenticated && $currentUser && $targetUserId == $currentUser->id;
 
-        // Get current user for follow status
-        $currentUser = User::find($this->defaultUserId);
+        // Check follow status (only if authenticated and viewing someone else's profile)
         $isFollowing = false;
-        if ($currentUser && !$isOwnProfile) {
+        if ($isAuthenticated && $currentUser && !$isOwnProfile) {
             $isFollowing = $currentUser->isFollowing($targetUserId);
         }
 
@@ -81,14 +90,14 @@ class ProfileController extends Controller
             $stats = $this->getUserStats($user);
             $posts = collect(); // Empty for comments tab
 
-            return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments', 'isOwnProfile', 'isFollowing'));
+            return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments', 'isOwnProfile', 'isFollowing', 'currentUser', 'isAuthenticated'));
         }
 
         // Get posts based on tab type (for non-comments tabs)
         $posts = $this->getPostsByTab($user, $tab, $request->get('page', 1), $isOwnProfile);
 
-        // Add interaction status for the current user (user ID 6)
-        if ($currentUser) {
+        // Add interaction status for the current user (only if authenticated)
+        if ($isAuthenticated && $currentUser) {
             $posts->getCollection()->transform(function ($post) use ($currentUser) {
                 $post->is_liked = $post->isLikedBy($currentUser);
                 $post->is_saved = $post->isSavedBy($currentUser);
@@ -128,7 +137,7 @@ class ProfileController extends Controller
 
         $comments = collect(); // Empty for non-comments tabs
 
-        return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments', 'isOwnProfile', 'isFollowing'));
+        return view("pages.profile", compact('user', 'posts', 'stats', 'tab', 'comments', 'isOwnProfile', 'isFollowing', 'currentUser', 'isAuthenticated'));
     }
 
     /**
@@ -284,10 +293,23 @@ class ProfileController extends Controller
 
     public function toggleFollow(Request $request, $userId)
     {
-        $currentUser = User::find($this->defaultUserId);
+        // Check authentication using existing system
+        $authData = $this->checkAuthentication($request);
+        
+        if (!$authData['authenticated'] || !$authData['user']) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to follow users'
+                ], 401);
+            }
+            return redirect()->route('login')->with('error', 'You must be logged in to follow users');
+        }
+
+        $currentUser = $authData['user'];
         $targetUser = User::find($userId);
 
-        if (!$currentUser || !$targetUser) {
+        if (!$targetUser) {
             return response()->json([
                 'success' => false,
                 'message' => 'User not found'
@@ -355,25 +377,30 @@ class ProfileController extends Controller
     }
 
     /**
-     * Your existing editProfile method (only works for own profile)
+     * Edit profile method (only works for authenticated user's own profile)
      */
     public function editProfile(Request $request)
     {
+        // Check authentication using existing system
+        $authData = $this->checkAuthentication($request);
+        
+        if (!$authData['authenticated'] || !$authData['user']) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You must be logged in to edit your profile'
+                ], 401);
+            }
+            return redirect()->route('login')->with('error', 'You must be logged in to edit your profile');
+        }
+
         $validated = $request->validate([
             'avatar_url' => 'nullable|image|max:2048|mimes:jpg,jpeg,png,gif',
             'username' => 'required|max:255',
             'bio' => 'nullable|max:500',
         ]);
 
-        // Only allow editing own profile (user ID 6)
-        $user = User::find($this->defaultUserId);
-
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found'
-            ], 404);
-        }
+        $user = $authData['user'];
 
         $data = $validated;
 
@@ -416,7 +443,21 @@ class ProfileController extends Controller
      */
     public function refresh(Request $request, $userId = null)
     {
-        $targetUserId = $userId ?? $this->defaultUserId;
+        // Check authentication using existing system
+        $authData = $this->checkAuthentication($request);
+        $isAuthenticated = $authData['authenticated'];
+        $currentUser = $authData['user'];
+
+        // If no userId provided, show current user's profile (if authenticated)
+        if (!$userId) {
+            if (!$isAuthenticated || !$currentUser) {
+                return redirect()->route('login')->with('error', 'Please log in to view your profile');
+            }
+            $targetUserId = $currentUser->id;
+        } else {
+            $targetUserId = $userId;
+        }
+
         $user = User::find($targetUserId);
 
         if (!$user) {
@@ -427,7 +468,7 @@ class ProfileController extends Controller
         Cache::forget('user_stats_' . $user->id);
 
         $tab = $request->get('tab', 'posts');
-        $isOwnProfile = $targetUserId == $this->defaultUserId;
+        $isOwnProfile = $isAuthenticated && $currentUser && $targetUserId == $currentUser->id;
 
         if ($tab === 'comments') {
             $comments = $this->getUserComments($user, 10);
@@ -504,5 +545,38 @@ class ProfileController extends Controller
         }
 
         return view('pages.users', compact('users', 'search'));
+    }
+
+    /**
+     * Check authentication using the same logic as CommentController
+     */
+    private function checkAuthentication(Request $request)
+    {
+        $sessionToken = $request->cookie('session_token');
+
+        if (!$sessionToken) {
+            return [
+                'authenticated' => false,
+                'user' => null
+            ];
+        }
+
+        // Find active session (same logic as CommentController)
+        $session = UserSession::with('user')
+            ->where('session_token', hash('sha256', $sessionToken))
+            ->where('expires_at', '>', now())
+            ->first();
+
+        if (!$session || !$session->user) {
+            return [
+                'authenticated' => false,
+                'user' => null
+            ];
+        }
+
+        return [
+            'authenticated' => true,
+            'user' => $session->user
+        ];
     }
 }

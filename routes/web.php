@@ -8,6 +8,7 @@ use App\Http\Controllers\AboutController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\SettingController;
 
 // Public routes (no authentication required)
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -87,4 +88,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/comments/{comment}/like', [CommentController::class, 'like'])->name('comments.like');
     Route::delete('/comments/{comment}/like', [CommentController::class, 'like']);
     Route::get('/comments/load-more', [CommentController::class, 'loadMore'])->name('comments.load-more');
+
+    // Setting routes
+    Route::get('/setting', [SettingController::class, 'index'])->name('setting');
+Route::get('/settings/user', [SettingController::class, 'getUserSettings'])->name('settings.user');
+Route::post('/settings/email-notifications', [SettingController::class, 'updateEmailNotifications'])->name('settings.update.notifications');
+Route::post('/settings/email', [SettingController::class, 'updateEmail'])->name('settings.update.email');
+Route::post('/settings/password', [SettingController::class, 'updatePassword'])->name('settings.update.password');
+Route::post('/settings/profile', [SettingController::class, 'updateProfileSettings'])->name('settings.update.profile');
+Route::delete('/settings/account', [SettingController::class, 'deleteAccount'])->name('settings.delete.account');
 });

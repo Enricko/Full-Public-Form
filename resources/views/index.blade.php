@@ -88,7 +88,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ route('profile') }}"><i class="fas fa-user me-2"></i>Profile</a></li>
-                            <li><a class="dropdown-item" href="javascript:void(0)" onclick="loadPage('settings')"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                            <li><a class="dropdown-item" href="{{ route('setting') }}" ><i class="fas fa-cog me-2"></i>Settings</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
@@ -115,7 +115,7 @@
                             <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">🏠 Home</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('profile') }}">👤 Profile</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('search') }}">🔍 Search</a></li>
-                            <li class="nav-item"><a class="nav-link" href="javascript:void(0)" onclick="loadPage('settings')">⚙️ Settings</a></li>
+                            <li class="nav-item"><a class="nav-link" href="{{ route('setting') }}" >⚙️ Settings</a></li>
                             <li class="nav-item"><a class="nav-link" href="{{ route('about') }}">ℹ️ About Us</a></li>
                         </ul>
                     </div>

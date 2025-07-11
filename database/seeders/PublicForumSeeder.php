@@ -73,7 +73,7 @@ class PublicForumSeeder extends Seeder
             'display_name' => 'Administrator',
             'role' => 'admin',
             'bio' => 'This is the admin user for the PublicForum. Here to manage everything!',
-            'avatar_url' => null,
+            'avatar_url' => "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
             'created_at' => now()->subDays(rand(30, 365)),
         ]);
         $this->users[] = $adminUser;
@@ -138,7 +138,7 @@ class PublicForumSeeder extends Seeder
                 'display_name' => $userData['display_name'],
                 'role' => $userData['role'],
                 'bio' => $userData['bio'],
-                'avatar_url' => null,
+                'avatar_url' => "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
                 'created_at' => now()->subDays(rand(30, 365)),
             ]);
             $this->users[] = $user;
@@ -155,7 +155,7 @@ class PublicForumSeeder extends Seeder
                 'display_name' => $this->faker->name,
                 'bio' => $this->faker->sentence(rand(5, 15)),
                 'role' => $this->faker->randomElement(['user', 'user', 'user', 'user', 'admin']), // 80% users, 20% admin
-                'avatar_url' => null,
+                'avatar_url' => "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
                 'created_at' => now()->subDays(rand(1, 365)),
             ]);
             $this->users[] = $user;
@@ -281,7 +281,7 @@ class PublicForumSeeder extends Seeder
             [
                 'type' => 'video/mp4',
                 'extension' => 'mp4',
-                'url_category' => null,
+                'url_category' => null
                 'size_range' => [1000000, 5000000]
             ],
             [
